@@ -68,7 +68,8 @@ object OrderedSerialization2 {
   }
 }
 
-class OrderedSerialization2[A, B](val ordA: OrderedSerialization[A],
+class OrderedSerialization2[A, B](
+  val ordA: OrderedSerialization[A],
   val ordB: OrderedSerialization[B]) extends Serialization2[A, B](ordA, ordB) with OrderedSerialization[(A, B)] {
   override def compare(x: (A, B), y: (A, B)) = {
     val ca = ordA.compare(x._1, y._1)

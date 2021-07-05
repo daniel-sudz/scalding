@@ -171,7 +171,8 @@ object Hdfs {
   def default: Hdfs = Hdfs(true, new Configuration)
 }
 
-case class HadoopTest(@transient conf: Configuration,
+case class HadoopTest(
+  @transient conf: Configuration,
   @transient buffers: Source => Option[Buffer[Tuple]])
   extends HadoopMode with TestMode {
 

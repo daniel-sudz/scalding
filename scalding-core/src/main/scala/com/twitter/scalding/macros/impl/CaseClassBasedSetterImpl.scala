@@ -39,7 +39,8 @@ object CaseClassBasedSetterImpl {
       def columns = 1
       def setTree(value: Tree, offset: Int) = fsetter.from(c)(tpe, offset, container, value) match {
         case Success(tree) => tree
-        case Failure(e) => c.abort(c.enclosingPosition,
+        case Failure(e) => c.abort(
+          c.enclosingPosition,
           s"Case class ${T} is supported. Error on $tpe, ${e.getMessage}")
       }
     }
@@ -101,7 +102,8 @@ object CaseClassBasedSetterImpl {
         case tpe if allowUnknownTypes =>
           DefaultSetter
         case _ =>
-          c.abort(c.enclosingPosition,
+          c.abort(
+            c.enclosingPosition,
             s"Case class ${T.tpe} is not supported at type: $outerType")
       }
     }

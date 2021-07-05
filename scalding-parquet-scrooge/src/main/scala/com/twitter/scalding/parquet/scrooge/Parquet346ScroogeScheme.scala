@@ -31,7 +31,8 @@ import scala.util.control.NonFatal
 class Parquet346ScroogeScheme[T <: ThriftStruct](config: ParquetValueScheme.Config[T])
   extends ParquetScroogeScheme[T](config) {
 
-  override def sourceConfInit(fp: FlowProcess[JobConf],
+  override def sourceConfInit(
+    fp: FlowProcess[JobConf],
     tap: Tap[JobConf, RecordReader[_, _], OutputCollector[_, _]],
     jobConf: JobConf): Unit = {
 
@@ -67,7 +68,8 @@ object Parquet346ScroogeRecordConverter {
  * ThriftSchemaConverter to not throw, but we can put dummy data in there because it's not actually
  * used.
  */
-class Parquet346ScroogeRecordConverter[T <: ThriftStruct](thriftClass: Class[T],
+class Parquet346ScroogeRecordConverter[T <: ThriftStruct](
+  thriftClass: Class[T],
   parquetSchema: MessageType,
   thriftType: StructType) extends ThriftRecordConverter[T](
   // this is a little confusing because it's all being passed to the super constructor

@@ -304,18 +304,18 @@ sealed trait HashJoinable[K, +V] extends CoGroupable[K, V] with KeyedPipe[K] {
 object HashJoinable extends Serializable {
   def toReduceStep[A, B](hj: HashJoinable[A, B]): ReduceStep[A, _, _ <: B] =
     hj match {
-      case step@IdentityReduce(_, _, _, _, _) => step
-      case step@UnsortedIdentityReduce(_, _, _, _, _) => step
-      case step@IteratorMappedReduce(_, _, _, _, _) => step
+      case step @ IdentityReduce(_, _, _, _, _) => step
+      case step @ UnsortedIdentityReduce(_, _, _, _, _) => step
+      case step @ IteratorMappedReduce(_, _, _, _, _) => step
     }
 
   def filterKeys[A, B](hj: HashJoinable[A, B], fn: A => Boolean): HashJoinable[A, B] =
     hj match {
-      case step@IdentityReduce(_, _, _, _, _) =>
+      case step @ IdentityReduce(_, _, _, _, _) =>
         step.copy(mapped = TypedPipe.FilterKeys(step.mapped, fn))
-      case step@UnsortedIdentityReduce(_, _, _, _, _) =>
+      case step @ UnsortedIdentityReduce(_, _, _, _, _) =>
         step.copy(mapped = TypedPipe.FilterKeys(step.mapped, fn))
-      case step@IteratorMappedReduce(_, _, _, _, _) =>
+      case step @ IteratorMappedReduce(_, _, _, _, _) =>
         step.copy(mapped = TypedPipe.FilterKeys(step.mapped, fn))
     }
 }
@@ -365,7 +365,7 @@ object Grouped extends Serializable {
 
   def addEmptyGuard[K, V1, V2](fn: (K, Iterator[V1]) => Iterator[V2]): (K, Iterator[V1]) => Iterator[V2] =
     fn match {
-      case alreadyGuarded@EmptyGuard(_) => alreadyGuarded
+      case alreadyGuarded @ EmptyGuard(_) => alreadyGuarded
       case ami if CoGroupable.atMostInputSizeFn(ami) => ami // already safe
       case needGuard => EmptyGuard(needGuard)
     }
@@ -466,7 +466,8 @@ object ReduceStep extends Serializable {
         val step = step0.evidence.subst[IR](step0)
         val revEv = step0.evidence.reverse
         val res =
-          IdentityReduce[A, C, C](step.keyOrdering,
+          IdentityReduce[A, C, C](
+            step.keyOrdering,
             step0.evidence.subst[In](input),
             step.reducers,
             step.descriptions,
@@ -478,7 +479,8 @@ object ReduceStep extends Serializable {
         val step = step0.evidence.subst[IR](step0)
         val revEv = step0.evidence.reverse
         val res =
-          UnsortedIdentityReduce[A, C, C](step.keyOrdering,
+          UnsortedIdentityReduce[A, C, C](
+            step.keyOrdering,
             step0.evidence.subst[In](input),
             step.reducers,
             step.descriptions,
@@ -490,7 +492,8 @@ object ReduceStep extends Serializable {
         val step = step0.evidence.subst[IVSR](step0)
         val revEv = step0.evidence.reverse
         val res =
-          IdentityValueSortedReduce[A, C, C](step.keyOrdering,
+          IdentityValueSortedReduce[A, C, C](
+            step.keyOrdering,
             step0.evidence.subst[In](input),
             step.valueSort,
             step.reducers,
@@ -499,7 +502,8 @@ object ReduceStep extends Serializable {
         // Put the type back to what scala expects ReduceStep[A, B, C]
         revEv.subst[Res](res)
       case step @ ValueSortedReduce(_, _, _, _, _, _) =>
-        ValueSortedReduce[A, B, C](step.keyOrdering,
+        ValueSortedReduce[A, B, C](
+          step.keyOrdering,
           input, step.valueSort, step.reduceFn, step.reducers, step.descriptions)
       case step @ IteratorMappedReduce(_, _, _, _, _) =>
         def go(imr: IteratorMappedReduce[A, B, C]): IteratorMappedReduce[A, B, C] =

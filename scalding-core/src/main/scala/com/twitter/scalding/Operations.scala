@@ -593,7 +593,8 @@ package com.twitter.scalding {
   /**
    * MapReduceMapBy Class
    */
-  class MRMBy[T, X, U](arguments: Fields,
+  class MRMBy[T, X, U](
+    arguments: Fields,
     middleFields: Fields,
     declaredFields: Fields,
     mfn: T => X,

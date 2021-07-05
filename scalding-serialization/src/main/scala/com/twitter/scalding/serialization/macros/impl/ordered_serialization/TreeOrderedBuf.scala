@@ -34,7 +34,8 @@ object CommonCompareBinary {
    * potentially complex logic in binary comparators
    */
   @SuppressWarnings(Array("org.wartremover.warts.Return"))
-  final def earlyEqual(inputStreamA: InputStream,
+  final def earlyEqual(
+    inputStreamA: InputStream,
     lenA: Int,
     inputStreamB: InputStream,
     lenB: Int): Boolean =
@@ -55,8 +56,7 @@ object CommonCompareBinary {
             inputStreamB.reset()
             // yeah, return sucks, but trying to optimize here
             return false
-          }
-          else if (a < 0) return JavaStreamEnrichments.eof
+          } else if (a < 0) return JavaStreamEnrichments.eof
           // a == b, but may be eof
         }
         // we consumed all the bytes, and they were all equal

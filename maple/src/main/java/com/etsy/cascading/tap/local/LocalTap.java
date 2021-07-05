@@ -22,6 +22,7 @@ import cascading.tuple.Fields;
 import cascading.tuple.TupleEntryCollector;
 import cascading.tuple.TupleEntryIterator;
 import cascading.util.Util;
+import org.apache.jasper.tagplugins.jstl.core.Out;
 
 /**
  * A shunt around the restrictions on taps that can run under the
@@ -44,6 +45,7 @@ public class LocalTap<SourceCtx, SinkCtx> extends Tap<Properties, RecordReader, 
     private String path;
     private JobConf defaults;
     private Lfs lfs;
+    //private Tap<JobConf, RecordReader, OutputCollector> lfs;
 
     public LocalTap(String path, Scheme<JobConf, RecordReader, OutputCollector, SourceCtx, SinkCtx> scheme,
             SinkMode sinkMode) {
@@ -90,13 +92,13 @@ public class LocalTap<SourceCtx, SinkCtx> extends Tap<Properties, RecordReader, 
     }
 
     @Override
-    public TupleEntryIterator openForRead(FlowProcess<Properties> flowProcess, RecordReader input) throws IOException {
+    public TupleEntryIterator openForRead(FlowProcess<? extends Properties> flowProcess, RecordReader input) throws IOException {
         JobConf jobConf = mergeDefaults("LocalTap#openForRead", flowProcess.getConfigCopy(), defaults);
         return lfs.openForRead(new HadoopFlowProcess(jobConf));
     }
 
     @Override
-    public TupleEntryCollector openForWrite(FlowProcess<Properties> flowProcess, OutputCollector output)
+    public TupleEntryCollector openForWrite(FlowProcess<? extends Properties> flowProcess, OutputCollector output)
             throws IOException {
         JobConf jobConf = mergeDefaults("LocalTap#openForWrite", flowProcess.getConfigCopy(), defaults);
         return lfs.openForWrite(new HadoopFlowProcess(jobConf));
@@ -159,53 +161,56 @@ public class LocalTap<SourceCtx, SinkCtx> extends Tap<Properties, RecordReader, 
         }
 
         @Override
-        public Fields retrieveSourceFields(FlowProcess<Properties> flowProcess,
+        public Fields retrieveSourceFields(FlowProcess<? extends Properties> flowProcess,
                 Tap tap) {
             return scheme.retrieveSourceFields(new HadoopFlowProcess(defaults), lfs);
         }
 
         @Override
-        public void presentSourceFields(FlowProcess<Properties> flowProcess, 
+        public void presentSourceFields(FlowProcess<? extends Properties> flowProcess,
                 Tap tap, Fields fields) {
             scheme.presentSourceFields(new HadoopFlowProcess(defaults), lfs, fields);
         }
 
         @Override
-        public void sourceConfInit(FlowProcess<Properties> flowProcess,
+        public void sourceConfInit(FlowProcess<? extends Properties> flowProcess,
                 Tap<Properties, RecordReader, OutputCollector> tap, Properties conf) {
             JobConf jobConf = mergeDefaults("LocalScheme#sourceConfInit", conf, defaults);
-            scheme.sourceConfInit(new HadoopFlowProcess(jobConf), lfs, jobConf);
+
+            // scheme.sourceConfInit(new HadoopFlowProcess(jobConf), lfs, jobConf);
+            scheme.sinkConfInit(new HadoopFlowProcess(jobConf), null, jobConf); // FIXME(jonshea)
             overwriteProperties(conf, jobConf);
         }
 
         @Override
-        public Fields retrieveSinkFields(FlowProcess<Properties> flowProcess,
+        public Fields retrieveSinkFields(FlowProcess<? extends Properties> flowProcess,
                 Tap tap) {
             return scheme.retrieveSinkFields(new HadoopFlowProcess(defaults), lfs);
         }
 
         @Override
-        public void presentSinkFields(FlowProcess<Properties> flowProcess, 
+        public void presentSinkFields(FlowProcess<? extends Properties> flowProcess,
                 Tap tap, Fields fields) {
             scheme.presentSinkFields(new HadoopFlowProcess(defaults), lfs, fields);
         }
             
         @Override
-        public void sinkConfInit(FlowProcess<Properties> flowProcess,
+        public void sinkConfInit(FlowProcess<? extends Properties> flowProcess,
                 Tap<Properties, RecordReader, OutputCollector> tap, Properties conf) {
             JobConf jobConf = mergeDefaults("LocalScheme#sinkConfInit", conf, defaults);
-            scheme.sinkConfInit(new HadoopFlowProcess(jobConf), lfs, jobConf);
+            // scheme.sinkConfInit(new HadoopFlowProcess(jobConf), lfs, jobConf);
+            scheme.sinkConfInit(new HadoopFlowProcess(jobConf), null, jobConf); // FIXME(jonshea)
             overwriteProperties(conf, jobConf);
         }
 
         @Override
-        public boolean source(FlowProcess<Properties> flowProcess, SourceCall<SourceContext, RecordReader> sourceCall)
+        public boolean source(FlowProcess<? extends Properties> flowProcess, SourceCall<SourceContext, RecordReader> sourceCall)
                 throws IOException {
             throw new RuntimeException("LocalTap#source is never called");
         }
 
         @Override
-        public void sink(FlowProcess<Properties> flowProcess, SinkCall<SinkContext, OutputCollector> sinkCall)
+        public void sink(FlowProcess<? extends Properties> flowProcess, SinkCall<SinkContext, OutputCollector> sinkCall)
                 throws IOException {
             throw new RuntimeException("LocalTap#sink is never called");
         }

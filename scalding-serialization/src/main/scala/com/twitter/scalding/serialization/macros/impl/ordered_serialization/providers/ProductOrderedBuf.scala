@@ -18,13 +18,12 @@ package com.twitter.scalding.serialization.macros.impl.ordered_serialization.pro
 import scala.reflect.macros.blackbox.Context
 
 import com.twitter.scalding.serialization.macros.impl.ordered_serialization.{
-ProductLike,
+  ProductLike,
   TreeOrderedBuf
 }
 
 object ProductOrderedBuf {
-  def dispatch(c: Context)(buildDispatcher: => PartialFunction[c.Type, TreeOrderedBuf[c.type]])
-    : PartialFunction[c.Type, TreeOrderedBuf[c.type]] = {
+  def dispatch(c: Context)(buildDispatcher: => PartialFunction[c.Type, TreeOrderedBuf[c.type]]): PartialFunction[c.Type, TreeOrderedBuf[c.type]] = {
     import c.universe._
     val validTypes: List[Type] = List(
       typeOf[Product1[Any]],
@@ -42,132 +41,13 @@ object ProductOrderedBuf {
       typeOf[Product13[Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any]],
       typeOf[Product14[Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any]],
       typeOf[Product15[Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any]],
-      typeOf[
-        Product16[Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any]],
-      typeOf[
-        Product17[Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any]],
-      typeOf[
-        Product18[Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any]],
-      typeOf[
-        Product19[Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any]],
-      typeOf[
-        Product20[Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any]],
-      typeOf[
-        Product21[Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any]],
-      typeOf[
-        Product22[Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any,
-                  Any]]
-    )
+      typeOf[Product16[Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any]],
+      typeOf[Product17[Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any]],
+      typeOf[Product18[Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any]],
+      typeOf[Product19[Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any]],
+      typeOf[Product20[Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any]],
+      typeOf[Product21[Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any]],
+      typeOf[Product22[Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any]])
 
     def validType(curType: Type): Boolean =
       validTypes.exists { t =>
@@ -191,9 +71,10 @@ object ProductOrderedBuf {
     pf
   }
 
-  def apply(c: Context)(buildDispatcher: => PartialFunction[c.Type, TreeOrderedBuf[c.type]],
-                        originalType: c.Type,
-                        outerType: c.Type): TreeOrderedBuf[c.type] = {
+  def apply(c: Context)(
+    buildDispatcher: => PartialFunction[c.Type, TreeOrderedBuf[c.type]],
+    originalType: c.Type,
+    outerType: c.Type): TreeOrderedBuf[c.type] = {
     import c.universe._
     def freshT(id: String) = TermName(c.freshName(id))
 

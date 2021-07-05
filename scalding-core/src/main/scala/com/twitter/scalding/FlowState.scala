@@ -48,7 +48,8 @@ case class FlowState(
     sourceMap.values.toSet[Source].foreach(_.validateTaps(mode))
 
   def merge(that: FlowState): FlowState =
-    FlowState(sourceMap = sourceMap ++ that.sourceMap,
+    FlowState(
+      sourceMap = sourceMap ++ that.sourceMap,
       flowConfigUpdates = flowConfigUpdates ++ that.flowConfigUpdates,
       pendingTypedWrites = pendingTypedWrites ::: that.pendingTypedWrites)
 }

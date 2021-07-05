@@ -8,9 +8,27 @@ import com.stripe.dagon.{ FunctionK, HCache, Id, Rule, Dag }
 import com.twitter.scalding.TupleConverter.{ singleConverter, tuple2Converter }
 import com.twitter.scalding.TupleSetter.{ singleSetter, tup2Setter }
 import com.twitter.scalding.{
-  CleanupIdentityFunction, Config, Dsl, Execution, Field, FlowState, FlowStateMap, GroupBuilder,
-  HadoopMode, IncrementCounters, IterableSource, MapsideReduce, Mode, RichFlowDef,
-  RichPipe, TupleConverter, TupleGetter, TupleSetter, TypedBufferOp, WrappedJoiner, Write
+  CleanupIdentityFunction,
+  Config,
+  Dsl,
+  Execution,
+  Field,
+  FlowState,
+  FlowStateMap,
+  GroupBuilder,
+  HadoopMode,
+  IncrementCounters,
+  IterableSource,
+  MapsideReduce,
+  Mode,
+  RichFlowDef,
+  RichPipe,
+  TupleConverter,
+  TupleGetter,
+  TupleSetter,
+  TypedBufferOp,
+  WrappedJoiner,
+  Write
 }
 import com.twitter.scalding.typed._
 import com.twitter.scalding.typed.functions.{ FilterKeysToFilter, MapValuesToMap, FlatMapValuesToFlatMap }
@@ -84,7 +102,8 @@ object CascadingBackend {
     val (boxfn, cls) = Boxed.nextCached[K](if (ordser.isInstanceOf[EquivSerialization[_]]) Some(ordser) else None)
     val boxordSer = BoxedOrderedSerialization(boxfn, ordser)
 
-    WrappedSerialization.rawSetBinary(List((cls, boxordSer)),
+    WrappedSerialization.rawSetBinary(
+      List((cls, boxordSer)),
       {
         case (k: String, v: String) =>
           FlowStateMap.merge(flowDef, FlowState.withConfigSetting(k + cls, v))
@@ -115,7 +134,8 @@ object CascadingBackend {
   // the toPipe function directly, so we don't actually create the pipe until
   // the TupleSetter comes in. With this, we can make sure to use the right
   // TupleSetter on the final pipe
-   private case class CascadingPipe[+T](pipe: Pipe,
+  private case class CascadingPipe[+T](
+    pipe: Pipe,
     fields: Fields,
     @transient localFlowDef: FlowDef, // not serializable.
     converter: TupleConverter[_ <: T]) {
@@ -207,13 +227,13 @@ object CascadingBackend {
 
       private def withCachePolicy[U]: TypedPipe[U] => CascadingPipe[U] = {
         // Don't cache `CrossPipe`, but cache `left` and `right` side of it
-        case cp@CrossPipe(left, right) =>
+        case cp @ CrossPipe(left, right) =>
           notCached(excludes = Set(left, right))(cp)
         // Don't cache `Fork` and `WithDescriptionTypedPipe`
         // since if we do cache them `CrossPipe` will end up being cached as well
-        case tp@Fork(_) =>
+        case tp @ Fork(_) =>
           transform(tp, this)
-        case tp@WithDescriptionTypedPipe(_, _) =>
+        case tp @ WithDescriptionTypedPipe(_, _) =>
           transform(tp, this)
         // Cache all other typed pipes
         case tp =>
@@ -229,9 +249,8 @@ object CascadingBackend {
 
       private def transform[T](
         pipe: TypedPipe[T],
-        rec: FunctionK[TypedPipe, CascadingPipe]
-      ): CascadingPipe[T] = pipe match {
-        case cp@CounterPipe(_) =>
+        rec: FunctionK[TypedPipe, CascadingPipe]): CascadingPipe[T] = pipe match {
+        case cp @ CounterPipe(_) =>
           def go[A](cp: CounterPipe[A]): CascadingPipe[A] = {
             val CascadingPipe(pipe0, initF, fd, conv) = rec(cp.pipe)
             val cpipe = RichPipe(pipe0)
@@ -241,9 +260,9 @@ object CascadingBackend {
           }
 
           go(cp)
-        case cp@CrossPipe(_, _) =>
+        case cp @ CrossPipe(_, _) =>
           rec(cp.viaHashJoin)
-        case cv@CrossValue(_, _) =>
+        case cv @ CrossValue(_, _) =>
           rec(cv.viaHashJoin)
         case DebugPipe(p) =>
           val inner = rec(p)
@@ -251,14 +270,14 @@ object CascadingBackend {
         case EmptyTypedPipe =>
           // just use an empty iterable pipe.
           rec(IterablePipe(List.empty[T]))
-        case fk@FilterKeys(_, _) =>
+        case fk @ FilterKeys(_, _) =>
           def go[K, V](node: FilterKeys[K, V]): CascadingPipe[(K, V)] = {
             val rewrite = Filter[(K, V)](node.input, FilterKeysToFilter(node.fn))
             rec(rewrite)
           }
 
           go(fk)
-        case f@Filter(_, _) =>
+        case f @ Filter(_, _) =>
           // hand holding for type inference
           def go[T1 <: T](f: Filter[T1]): CascadingPipe[T] = {
             val Filter(input, fn) = f
@@ -269,12 +288,12 @@ object CascadingBackend {
           }
 
           go(f)
-        case f@FlatMapValues(_, _) =>
+        case f @ FlatMapValues(_, _) =>
           def go[K, V, U](node: FlatMapValues[K, V, U]): CascadingPipe[T] =
             rec(FlatMapped[(K, V), (K, U)](node.input, FlatMapValuesToFlatMap(node.fn)))
 
           go(f)
-        case fm@FlatMapped(_, _) =>
+        case fm @ FlatMapped(_, _) =>
           // TODO we can optimize a flatmapped input directly and skip some tupleconverters
           def go[A, B <: T](fm: FlatMapped[A, B]): CascadingPipe[T] = {
             val CascadingPipe(pipe, initF, fd, conv) = rec(fm.input)
@@ -295,12 +314,12 @@ object CascadingBackend {
           val fd = new FlowDef
           val pipe = IterableSource[T](iter, f0)(singleSetter, singleConverter).read(fd, mode)
           CascadingPipe.single[T](pipe, fd)
-        case f@MapValues(_, _) =>
+        case f @ MapValues(_, _) =>
           def go[K, A, B](fn: MapValues[K, A, B]): CascadingPipe[_ <: (K, B)] =
             rec(Mapped[(K, A), (K, B)](fn.input, MapValuesToMap(fn.fn)))
 
           go(f)
-        case m@Mapped(_, _) =>
+        case m @ Mapped(_, _) =>
           def go[A, B <: T](m: Mapped[A, B]): CascadingPipe[T] = {
             val Mapped(input, fn) = m
             val CascadingPipe(pipe, initF, fd, conv) = rec(input)
@@ -311,7 +330,7 @@ object CascadingBackend {
 
           go(m)
 
-        case m@MergedTypedPipe(_, _) =>
+        case m @ MergedTypedPipe(_, _) =>
           OptimizationRules.unrollMerge(m) match {
             case Nil => rec(EmptyTypedPipe)
             case h :: Nil => rec(h)
@@ -331,7 +350,7 @@ object CascadingBackend {
           val fd = new FlowDef
           val pipe = typedSrc.read(fd, mode)
           CascadingPipe[T](pipe, typedSrc.sourceFields, fd, typedSrc.converter[T])
-        case sblk@SumByLocalKeys(_, _) =>
+        case sblk @ SumByLocalKeys(_, _) =>
           def go[K, V](sblk: SumByLocalKeys[K, V]): CascadingPipe[(K, V)] = {
             val cp = rec(sblk.input)
             val localFD = new FlowDef
@@ -364,8 +383,7 @@ object CascadingBackend {
           @annotation.tailrec
           def loop[A](
             t: TypedPipe[A],
-            acc: List[(String, Boolean)]
-          ): (TypedPipe[A], List[(String, Boolean)]) =
+            acc: List[(String, Boolean)]): (TypedPipe[A], List[(String, Boolean)]) =
             t match {
               case WithDescriptionTypedPipe(i, descs) =>
                 loop(i, descs ::: acc)
@@ -381,9 +399,10 @@ object CascadingBackend {
           val next = new Each(cp.pipe, Fields.ALL, new CleanupIdentityFunction(fn))
           cp.copy(pipe = next)
 
-        case hcg@HashCoGroup(_, _, _) =>
+        case hcg @ HashCoGroup(_, _, _) =>
           def go[K, V1, V2, R](hcg: HashCoGroup[K, V1, V2, R]): CascadingPipe[(K, R)] =
-            planHashJoin(hcg.left,
+            planHashJoin(
+              hcg.left,
               hcg.right,
               hcg.joiner,
               rec)
@@ -419,8 +438,7 @@ object CascadingBackend {
           // add any explicit forces to the optimized graph
           Rule.orElse(List(
             forceHash,
-            OptimizationRules.RemoveDuplicateForceFork)
-          )))
+            OptimizationRules.RemoveDuplicateForceFork))))
 
     config.getOptimizationPhases match {
       case Some(tryPhases) => tryPhases.get.phases
@@ -462,10 +480,11 @@ object CascadingBackend {
     def doWrites(writes: List[FlowStateMap.TypedWrite[_]]): Unit = {
       val empty = Dag.empty(OptimizationRules.toLiteral)
       type ToDo[A] = (Id[A], TypedSink[A])
-      val (rootedDag, todos) = writes.foldLeft((empty, List.empty[ToDo[_]])) { case ((dag, items), tw) =>
-        val (nextDag, id) = dag.addRoot(tw.pipe)
-        require(tw.mode == mode, s"${tw.mode} should be equal to $mode")
-        (nextDag, (id, tw.sink) :: items)
+      val (rootedDag, todos) = writes.foldLeft((empty, List.empty[ToDo[_]])) {
+        case ((dag, items), tw) =>
+          val (nextDag, id) = dag.addRoot(tw.pipe)
+          require(tw.mode == mode, s"${tw.mode} should be equal to $mode")
+          (nextDag, (id, tw.sink) :: items)
       }
       val phases = defaultOptimizationRules(
         mode match {
@@ -541,8 +560,7 @@ object CascadingBackend {
           // TypedPipe
           Some(Execution.failed(new Exception(s"expected empty FlowState other than TypedWrites, found: $fs")))
       }
-    }
-    else Some(Execution.failed(new Exception(s"We can only convert Typed-API Jobs to Execution. Found non-empty FlowDef: $fd")))
+    } else Some(Execution.failed(new Exception(s"We can only convert Typed-API Jobs to Execution. Found non-empty FlowDef: $fd")))
   }
 
   /**
@@ -551,7 +569,8 @@ object CascadingBackend {
    * cases where you want more direct control of the TypedPipe than
    * the default method gives you.
    */
-  final def toPipeUnoptimized[U](input: TypedPipe[U],
+  final def toPipeUnoptimized[U](
+    input: TypedPipe[U],
     fieldNames: Fields)(implicit flowDef: FlowDef, mode: Mode, setter: TupleSetter[U]): Pipe = {
 
     val compiler = cache.get(flowDef, mode)
@@ -560,7 +579,8 @@ object CascadingBackend {
      * These rules are not optimizations, but actually required for Cascading to not
      * throw. Cascading requires certain shapes of the graphs
      */
-    val p = OptimizationRules(input,
+    val p = OptimizationRules(
+      input,
       OptimizationRules.DescribeLater
         .orElse(OptimizationRules.DeferMerge)
         .orElse(OptimizationRules.DiamondToFlatMap))
@@ -580,7 +600,7 @@ object CascadingBackend {
     // before we need to call them below
     val inputsCR = cg.inputs.map(rec(_))
 
-    import cg.{inputs, joinFunction}
+    import cg.{ inputs, joinFunction }
     // Cascading handles the first item in join differently, we have to see if it is repeated
     val firstCount = inputs.count(_ == inputs.head)
 
@@ -613,7 +633,8 @@ object CascadingBackend {
          * not repeated. That case is below
          */
         val NUM_OF_SELF_JOINS = firstCount - 1
-        new CoGroup(assignName(toPipe[K, Any](inputs.head, kvFields, tupset)),
+        new CoGroup(
+          assignName(toPipe[K, Any](inputs.head, kvFields, tupset)),
           ordKeyField,
           NUM_OF_SELF_JOINS,
           outFields(firstCount),
@@ -703,7 +724,8 @@ object CascadingBackend {
    * But the optimization is somewhat general: we often want a checkpoint
    * before a hashjoin is replicated
    */
-  private def planHashJoin[K, V1, V2, R](left: TypedPipe[(K, V1)],
+  private def planHashJoin[K, V1, V2, R](
+    left: TypedPipe[(K, V1)],
     right: HashJoinable[K, V2],
     joiner: (K, V1, Iterable[V2]) => Iterator[R],
     rec: FunctionK[TypedPipe, CascadingPipe]): CascadingPipe[(K, R)] = {
@@ -769,11 +791,11 @@ object CascadingBackend {
     }
 
     rs match {
-      case ir@IdentityReduce(_, _, None, descriptions, _) =>
+      case ir @ IdentityReduce(_, _, None, descriptions, _) =>
         type CP[V] = CascadingPipe[_ <: (K, V)]
         // Not doing anything
         ir.evidence.subst[CP](mapped.copy(pipe = RichPipe.setPipeDescriptions(mapped.pipe, descriptions)))
-      case uir@UnsortedIdentityReduce(_, _, None, descriptions, _) =>
+      case uir @ UnsortedIdentityReduce(_, _, None, descriptions, _) =>
         type CP[V] = CascadingPipe[_ <: (K, V)]
         // Not doing anything
         uir.evidence.subst[CP](mapped.copy(pipe = RichPipe.setPipeDescriptions(mapped.pipe, descriptions)))
@@ -782,7 +804,7 @@ object CascadingBackend {
       case UnsortedIdentityReduce(_, _, Some(reds), descriptions, _) =>
         // This is weird, but it is sometimes used to force a partition
         groupOp { _.reducers(reds).setDescriptions(descriptions) }
-      case ivsr@IdentityValueSortedReduce(_, _, _, _, _, _) =>
+      case ivsr @ IdentityValueSortedReduce(_, _, _, _, _, _) =>
         groupOpWithValueSort(Some(ivsr.valueSort)) { gb =>
           // If its an ordered serialization we need to unbox
           val mappedGB =
@@ -797,20 +819,21 @@ object CascadingBackend {
             .reducers(ivsr.reducers.getOrElse(-1))
             .setDescriptions(ivsr.descriptions)
         }
-      case vsr@ValueSortedReduce(_, _, _, _, _, _) =>
+      case vsr @ ValueSortedReduce(_, _, _, _, _, _) =>
         val optVOrdering = Some(vsr.valueSort)
         groupOpWithValueSort(optVOrdering) {
           // If its an ordered serialization we need to unbox
           // the value before handing it to the users operation
           _.every(new cascading.pipe.Every(_, valueField,
-            new TypedBufferOp[K, V1, V2](keyConverter(vsr.keyOrdering),
+            new TypedBufferOp[K, V1, V2](
+              keyConverter(vsr.keyOrdering),
               valueConverter(optVOrdering),
               vsr.reduceFn,
               valueField), Fields.REPLACE))
             .reducers(vsr.reducers.getOrElse(-1))
             .setDescriptions(vsr.descriptions)
         }
-      case imr@IteratorMappedReduce(_, _, _, _, _) =>
+      case imr @ IteratorMappedReduce(_, _, _, _, _) =>
         groupOp {
           _.every(new cascading.pipe.Every(_, valueField,
             new TypedBufferOp(keyConverter(imr.keyOrdering), TupleConverter.singleConverter[V1], imr.reduceFn, valueField), Fields.REPLACE))

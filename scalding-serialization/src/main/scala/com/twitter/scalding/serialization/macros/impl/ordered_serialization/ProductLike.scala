@@ -101,12 +101,14 @@ object ProductLike {
                 maybeLength,
                 noLength)
             case f: FastLengthCalculation[_] =>
-              (constantLength,
+              (
+                constantLength,
                 dynamicLength :+ f.asInstanceOf[FastLengthCalculation[c.type]].t,
                 maybeLength,
                 noLength)
             case m: MaybeLengthCalculation[_] =>
-              (constantLength,
+              (
+                constantLength,
                 dynamicLength,
                 maybeLength :+ m.asInstanceOf[MaybeLengthCalculation[c.type]].t,
                 noLength)

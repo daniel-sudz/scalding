@@ -109,7 +109,8 @@ object TupleConverterImpl {
         case tpe if allowUnknownTypes =>
           PrimitiveBuilder(idx => q"""t.getObject(${idx}).asInstanceOf[$tpe]""")
         case tpe =>
-          c.abort(c.enclosingPosition,
+          c.abort(
+            c.enclosingPosition,
             s"${T.tpe} is not pure primitives, Option of a primitive, nested case classes when looking at type ${tpe}")
       }
 

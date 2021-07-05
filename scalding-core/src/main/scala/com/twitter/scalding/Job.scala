@@ -26,7 +26,7 @@ import com.twitter.scalding.typed.cascading_backend.CascadingBackend
 import org.apache.hadoop.io.serializer.{ Serialization => HSerialization }
 
 import scala.concurrent.{ Future, Promise }
-import scala.util.{Try, Success, Failure}
+import scala.util.{ Try, Success, Failure }
 
 import java.io.{ BufferedWriter, FileOutputStream, OutputStreamWriter }
 import java.util.{ List => JList }
@@ -52,13 +52,14 @@ object Job {
    * and the Args contained in the Config.
    */
   def makeJob[J <: Job](cls: Class[J]): Execution[J] =
-    Execution.getConfigMode.flatMap { case (conf, mode) =>
-      // Now we need to allocate the job
-      Execution.from {
-        val argsWithMode = Mode.putMode(mode, conf.getArgs)
-        cls.getConstructor(classOf[Args])
-          .newInstance(argsWithMode)
-      }
+    Execution.getConfigMode.flatMap {
+      case (conf, mode) =>
+        // Now we need to allocate the job
+        Execution.from {
+          val argsWithMode = Mode.putMode(mode, conf.getArgs)
+          cls.getConstructor(classOf[Args])
+            .newInstance(argsWithMode)
+        }
     }
 
   /**
@@ -99,7 +100,7 @@ object Job {
           _ <- Execution.withConfig(ex)(_ => conf.setExecutionCleanupOnFinish(true))
           _ <- nextJobEx
         } yield ()
-      }
+    }
 }
 
 /**
@@ -230,7 +231,8 @@ class Job(val args: Args) extends FieldConversions with java.io.Serializable {
       .setMapSideAggregationThreshold(defaultSpillThreshold)
 
     // This is setting a property for cascading/driven
-    AppProps.addApplicationFramework(null,
+    AppProps.addApplicationFramework(
+      null,
       String.format("scalding:%s", scaldingVersion))
 
     val modeConf = mode match {
@@ -258,7 +260,6 @@ class Job(val args: Args) extends FieldConversions with java.io.Serializable {
     if (args.optional(Args.jobClassReflection).map(_.toBoolean).getOrElse(true)) {
       ReferencedClassFinder.findReferencedClasses(getClass)
     } else Set.empty
-
 
   /**
    * This is here so that Mappable.toIterator can find an implicit config
@@ -523,7 +524,8 @@ abstract class ExecutionJob[+T](args: Args) extends Job(args) {
   final override def run = {
     val r = Config.tryFrom(config)
       .map { conf =>
-        Await.result(execution.run(conf, mode)(concurrentExecutionContext),
+        Await.result(
+          execution.run(conf, mode)(concurrentExecutionContext),
           scala.concurrent.duration.Duration.Inf)
       }
     if (!resultPromise.tryComplete(r)) {

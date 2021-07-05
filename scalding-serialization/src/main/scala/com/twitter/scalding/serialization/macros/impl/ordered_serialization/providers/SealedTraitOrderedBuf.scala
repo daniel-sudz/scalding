@@ -29,7 +29,8 @@ object SealedTraitOrderedBuf {
     pf
   }
 
-  def apply(c: Context)(buildDispatcher: => PartialFunction[c.Type, TreeOrderedBuf[c.type]],
+  def apply(c: Context)(
+    buildDispatcher: => PartialFunction[c.Type, TreeOrderedBuf[c.type]],
     outerType: c.Type): TreeOrderedBuf[c.type] = {
     import c.universe._
     def freshT(id: String) = TermName(c.freshName(s"$id"))
@@ -66,7 +67,8 @@ object SealedTraitOrderedBuf {
       .zipWithIndex
       .map { case ((tpe, tbuf), idx) => (idx, tpe, tbuf) }
 
-    require(subData.nonEmpty,
+    require(
+      subData.nonEmpty,
       "Unable to parse any subtypes for the sealed trait, error. This must be an error.")
 
     new TreeOrderedBuf[c.type] {

@@ -26,7 +26,8 @@ import java.util.Comparator
  */
 class IntegralComparator extends Comparator[AnyRef] with Hasher[AnyRef] with Serializable {
 
-  val integralTypes: Set[Class[_]] = Set(classOf[java.lang.Long],
+  val integralTypes: Set[Class[_]] = Set(
+    classOf[java.lang.Long],
     classOf[java.lang.Integer],
     classOf[java.lang.Short],
     classOf[java.lang.Byte])

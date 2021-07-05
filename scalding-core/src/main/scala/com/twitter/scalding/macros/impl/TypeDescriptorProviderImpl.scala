@@ -93,7 +93,8 @@ object TypeDescriptorProviderImpl {
 
   def isTuple[T](c: Context)(implicit T: c.WeakTypeTag[T]): Boolean = {
     import c.universe._
-    val tupleTypes = List(typeOf[Tuple1[Any]],
+    val tupleTypes = List(
+      typeOf[Tuple1[Any]],
       typeOf[Tuple2[Any, Any]],
       typeOf[Tuple3[Any, Any, Any]],
       typeOf[Tuple4[Any, Any, Any, Any]],

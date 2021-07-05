@@ -27,7 +27,8 @@ import scala.reflect.ClassTag
  * }}}
  *
  */
-case class PartitionedParquetThriftSource[P, T <: ParquetThrift.ThriftBase](path: String, template: String)(implicit val ct: ClassTag[T],
+case class PartitionedParquetThriftSource[P, T <: ParquetThrift.ThriftBase](path: String, template: String)(implicit
+  val ct: ClassTag[T],
   val valueSetter: TupleSetter[T], val valueConverter: TupleConverter[T], val partitionSetter: TupleSetter[P], val partitionConverter: TupleConverter[P])
   extends FixedPathSource(path) with ParquetThriftBase[T] with PartitionSchemed[P, T] with Serializable {
 

@@ -5,7 +5,7 @@ import cascading.pipe.Pipe
 import com.twitter.scalding.typed._
 import com.twitter.scalding.Mode
 import scala.concurrent.{ Future, ExecutionContext => ConcurrentExecutionContext, Promise }
-import scala.util.{Failure, Success}
+import scala.util.{ Failure, Success }
 
 trait MemorySource[A] {
   def read()(implicit ec: ConcurrentExecutionContext): Future[Iterator[A]]

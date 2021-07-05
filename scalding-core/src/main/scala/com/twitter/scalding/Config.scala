@@ -22,7 +22,7 @@ import org.apache.hadoop.io.serializer.{ Serialization => HSerialization }
 import com.twitter.chill.{ ExternalizerCodec, ExternalizerInjection, Externalizer, KryoInstantiator }
 import com.twitter.chill.config.{ ScalaMapConfig, ConfiguredInstantiator }
 import com.twitter.bijection.{ Base64String, Injection }
-import com.twitter.scalding.filecache.{CachedFile, DistributedCacheFile, HadoopCachedFile}
+import com.twitter.scalding.filecache.{ CachedFile, DistributedCacheFile, HadoopCachedFile }
 
 import cascading.pipe.assembly.AggregateBy
 import cascading.flow.{ FlowListener, FlowStepListener, FlowProps, FlowStepStrategy }
@@ -63,7 +63,8 @@ abstract class Config extends Serializable {
    * @return new Config with cached files
    */
   def addDistributedCacheFiles(cachedFiles: CachedFile*): Config =
-    cachedFiles.foldLeft(this) { case (config, file) =>
+    cachedFiles.foldLeft(this) {
+      case (config, file) =>
         file match {
           case hadoopFile: HadoopCachedFile =>
             Config.addDistributedCacheFile(hadoopFile.sourceUri, config)
@@ -115,7 +116,6 @@ abstract class Config extends Serializable {
           Class.forName(str, true, Thread.currentThread().getContextClassLoader))
       } catch { case err: Throwable => Failure(err) }
     }
-
 
   /*
    * Used in joins to determine how much of the "right hand side" of
@@ -207,12 +207,14 @@ abstract class Config extends Serializable {
    * with a class to serialize to bootstrap the process:
    * Left((classOf[serialization.KryoHadoop], myInstance))
    */
-  def setSerialization(kryo: Either[(Class[_ <: KryoInstantiator], KryoInstantiator), Class[_ <: KryoInstantiator]],
+  def setSerialization(
+    kryo: Either[(Class[_ <: KryoInstantiator], KryoInstantiator), Class[_ <: KryoInstantiator]],
     userHadoop: Seq[Class[_ <: HSerialization[_]]] = Nil): Config = {
 
     // Hadoop and Cascading should come first
     val first: Seq[Class[_ <: HSerialization[_]]] =
-      Seq(classOf[org.apache.hadoop.io.serializer.WritableSerialization],
+      Seq(
+        classOf[org.apache.hadoop.io.serializer.WritableSerialization],
         classOf[cascading.tuple.hadoop.TupleSerialization],
         classOf[serialization.WrappedSerialization[_]])
     // this must come last

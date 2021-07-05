@@ -103,7 +103,7 @@ object FlatMappedFn extends Serializable {
   }
 
   def asFilter[A, B](f: FlatMappedFn[A, B]): Option[(A => Boolean, EqTypes[(_ >: A), (_ <: B)])] = f match {
-    case Single(filter@FlatMapping.Filter(_, _)) => Some((filter.fn, filter.ev))
+    case Single(filter @ FlatMapping.Filter(_, _)) => Some((filter.fn, filter.ev))
     case _ => None
   }
 

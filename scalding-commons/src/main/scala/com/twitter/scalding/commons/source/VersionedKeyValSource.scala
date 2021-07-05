@@ -54,7 +54,8 @@ object VersionedKeyValSource {
 
 class VersionedKeyValSource[K, V](val path: String, val sourceVersion: Option[Long], val sinkVersion: Option[Long],
   val maxFailures: Int, val versionsToKeep: Int)(
-    implicit @transient codec: Injection[(K, V), (Array[Byte], Array[Byte])]) extends Source
+  implicit
+  @transient codec: Injection[(K, V), (Array[Byte], Array[Byte])]) extends Source
   with Mappable[(K, V)]
   with TypedSink[(K, V)] {
 
@@ -253,7 +254,8 @@ class RichPipeEx(pipe: Pipe) extends java.io.Serializable {
 
   // VersionedKeyValSource always merges with the most recent complete
   // version
-  def writeIncremental[K, V](src: VersionedKeyValSource[K, V], fields: Fields, reducers: Int = 1)(implicit monoid: Monoid[V],
+  def writeIncremental[K, V](src: VersionedKeyValSource[K, V], fields: Fields, reducers: Int = 1)(implicit
+    monoid: Monoid[V],
     flowDef: FlowDef,
     mode: Mode) = {
     def appendToken(pipe: Pipe, token: Int) =

@@ -92,13 +92,13 @@ public class VersionedTap extends GlobHfs {
   }
 
   @Override
-  public void sourceConfInit(FlowProcess<JobConf> process, JobConf conf) {
+  public void sourceConfInit(FlowProcess<? extends JobConf> process, JobConf conf) {
     super.sourceConfInit(process, conf);
     FileInputFormat.setInputPaths(conf, getSourcePath(conf));
   }
 
   @Override
-  public void sinkConfInit(FlowProcess<JobConf> process, JobConf conf) {
+  public void sinkConfInit(FlowProcess<? extends JobConf> process, JobConf conf) {
     super.sinkConfInit(process, conf);
 
     if (newVersionPath == null)

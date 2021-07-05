@@ -20,7 +20,8 @@ package com.twitter.scalding.db
 case class Definition(toStr: String) extends AnyVal
 
 object DBColumnDefinition {
-  def apply(col: ColumnDefinition): DBColumnDefinition = DBColumnDefinition(col.jdbcType,
+  def apply(col: ColumnDefinition): DBColumnDefinition = DBColumnDefinition(
+    col.jdbcType,
     col.name,
     col.nullable,
     col.sizeOpt,
@@ -28,7 +29,8 @@ object DBColumnDefinition {
     SqlTypeName(col.jdbcType.toString))
 }
 
-case class DBColumnDefinition(jdbcType: SqlType,
+case class DBColumnDefinition(
+  jdbcType: SqlType,
   name: ColumnName,
   nullable: IsNullable,
   sizeOpt: Option[Int],
@@ -36,7 +38,8 @@ case class DBColumnDefinition(jdbcType: SqlType,
   sqlType: SqlTypeName)
 
 object DBColumnTransformer {
-  def columnDefnToDefinition(col: ColumnDefinition,
+  def columnDefnToDefinition(
+    col: ColumnDefinition,
     columnMutator: PartialFunction[DBColumnDefinition, DBColumnDefinition]): Definition = {
     val preparedCol = columnMutator(DBColumnDefinition(col))
     val sizeStr = preparedCol.sizeOpt.map { siz => s"($siz)" }.getOrElse("")
@@ -55,11 +58,13 @@ object DBColumnTransformer {
     case t => t
   }
 
-  def mutateColumns(columnMutator: PartialFunction[DBColumnDefinition, DBColumnDefinition],
+  def mutateColumns(
+    columnMutator: PartialFunction[DBColumnDefinition, DBColumnDefinition],
     columns: Iterable[ColumnDefinition]): Iterable[DBColumnDefinition] =
     columns.map(c => columnMutator.orElse(defaultColumnMutator)(DBColumnDefinition(c)))
 
-  def columnDefnsToCreate(columnMutator: PartialFunction[DBColumnDefinition, DBColumnDefinition],
+  def columnDefnsToCreate(
+    columnMutator: PartialFunction[DBColumnDefinition, DBColumnDefinition],
     columns: Iterable[ColumnDefinition]): Iterable[Definition] =
     columns.map(c => columnDefnToDefinition(c, columnMutator.orElse(defaultColumnMutator)))
 

@@ -49,7 +49,8 @@ object ColumnDefinitionProviderImpl {
 
     // Field To JDBCColumn
     @tailrec
-    def matchField(accessorTree: List[MethodSymbol],
+    def matchField(
+      accessorTree: List[MethodSymbol],
       oTpe: Type,
       fieldName: FieldName,
       defaultValOpt: Option[c.Expr[String]],
@@ -141,7 +142,8 @@ object ColumnDefinitionProviderImpl {
       .keys
 
     if (duplicateFields.nonEmpty) {
-      c.abort(c.enclosingPosition,
+      c.abort(
+        c.enclosingPosition,
         s"""
         Duplicate field names found: ${duplicateFields.mkString(",")}.
         Please check your nested case classes.

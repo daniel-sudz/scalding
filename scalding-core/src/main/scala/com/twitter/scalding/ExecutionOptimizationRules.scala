@@ -1,11 +1,11 @@
 package com.twitter.scalding
 
-import com.stripe.dagon.{Dag, FunctionK, Literal, Memoize, PartialRule, Rule}
-import com.twitter.scalding.ExecutionOptimizationRules.ZipMap.{MapLeft, MapRight}
+import com.stripe.dagon.{ Dag, FunctionK, Literal, Memoize, PartialRule, Rule }
+import com.twitter.scalding.ExecutionOptimizationRules.ZipMap.{ MapLeft, MapRight }
 import com.twitter.scalding.typed.functions.ComposedFunctions.ComposedMapFn
-import com.twitter.scalding.typed.functions.{ComposedFunctions, Identity, Swap}
+import com.twitter.scalding.typed.functions.{ ComposedFunctions, Identity, Swap }
 import scala.annotation.tailrec
-import scala.concurrent.{Future, ExecutionContext => ConcurrentExecutionContext}
+import scala.concurrent.{ Future, ExecutionContext => ConcurrentExecutionContext }
 
 object ExecutionOptimizationRules {
   type LiteralExecution[T] = Literal[Execution, T]
@@ -30,7 +30,7 @@ object ExecutionOptimizationRules {
     Memoize.functionK[Execution, LiteralExecution](
       new Memoize.RecursiveK[Execution, LiteralExecution] {
         override def toFunction[A] = {
-          case (e@Execution.ReaderExecution, _) =>
+          case (e @ Execution.ReaderExecution, _) =>
             Literal.Const(e)
           case (e: Execution.FutureConst[a], _) =>
             Literal.Const(e)
@@ -59,8 +59,7 @@ object ExecutionOptimizationRules {
           case (e: Execution.Zipped[a, b], f) =>
             Literal.Binary(f(e.one), f(e.two), Execution.Zipped(_: Execution[a], _: Execution[b]))
         }
-      }
-    )
+      })
 
   /**
    * If `Execution` is `FlowDefExecution` or `WriteExecution`,
@@ -143,8 +142,7 @@ object ExecutionOptimizationRules {
     }
     case class ComposedFn[A1, A2, A, B1, B2, B](
       fn1: Function1[(A1, A2), A],
-      fn2: Function1[(B1, B2), B]
-    ) extends Function1[((A1, B1), (A2, B2)), (A, B)] {
+      fn2: Function1[(B1, B2), B]) extends Function1[((A1, B1), (A2, B2)), (A, B)] {
       override def apply(v1: ((A1, B1), (A2, B2))): (A, B) = (fn1(v1._1._1, v1._2._1), fn2(v1._1._2, v1._2._2))
     }
 
@@ -181,7 +179,7 @@ object ExecutionOptimizationRules {
       def toExecution[A](ex: FlattenedZip[A]): Execution[A] = ex match {
         case NonWrite(nonWrite) => nonWrite
         case Write(write) => write
-        case c@Composed(_, _, _) => c.write.zip(c.nonWrite).map(c.compose)
+        case c @ Composed(_, _, _) => c.write.zip(c.nonWrite).map(c.compose)
       }
 
       def map[A, B](ex: FlattenedZip[A], fn: A => B): FlattenedZip[B] = ex match {
@@ -194,25 +192,25 @@ object ExecutionOptimizationRules {
       }
 
       def zip[A, B](left: FlattenedZip[A], right: FlattenedZip[B]): FlattenedZip[(A, B)] = (left, right) match {
-        case (left@NonWrite(_), right@NonWrite(_)) =>
+        case (left @ NonWrite(_), right @ NonWrite(_)) =>
           NonWrite(left.nonWrite.zip(right.nonWrite))
-        case (left@NonWrite(_), right@Write(_)) =>
+        case (left @ NonWrite(_), right @ Write(_)) =>
           Composed(right.write, left.nonWrite, Swap[B, A]())
-        case (left@NonWrite(_), right@Composed(_, _, _)) =>
+        case (left @ NonWrite(_), right @ Composed(_, _, _)) =>
           zipNonWriteComposed(left, right)
 
-        case (left@Write(_), right@NonWrite(_)) =>
+        case (left @ Write(_), right @ NonWrite(_)) =>
           Composed(left.write, right.nonWrite, Identity[(A, B)]())
-        case (left@Write(_), right@Write(_)) =>
+        case (left @ Write(_), right @ Write(_)) =>
           Write(mergeWrite(left.write, right.write))
-        case (left@Write(_), right@Composed(_, _, _)) =>
+        case (left @ Write(_), right @ Composed(_, _, _)) =>
           zipWriteComposed(left, right)
 
-        case (left@Composed(_, _, _), right@NonWrite(_)) =>
+        case (left @ Composed(_, _, _), right @ NonWrite(_)) =>
           map(zipNonWriteComposed(right, left), Swap[B, A]())
-        case (left@Composed(_, _, _), right@Write(_)) =>
+        case (left @ Composed(_, _, _), right @ Write(_)) =>
           map(zipWriteComposed(right, left), Swap[B, A]())
-        case (left@Composed(_, _, _), right@Composed(_, _, _)) =>
+        case (left @ Composed(_, _, _), right @ Composed(_, _, _)) =>
           Composed(mergeWrite(left.write, right.write), left.nonWrite.zip(right.nonWrite),
             ComposedFn(left.compose, right.compose))
       }
@@ -232,7 +230,7 @@ object ExecutionOptimizationRules {
         ex match {
           case Zipped(left, right) => zip(apply(left), apply(right))
           case Mapped(that, fn) => map(apply(that), fn)
-          case write@WriteExecution(_, _, _) => FlattenedZip.Write(write)
+          case write @ WriteExecution(_, _, _) => FlattenedZip.Write(write)
           case notZipMap => FlattenedZip.NonWrite(notZipMap)
         }
     }
@@ -263,7 +261,7 @@ object ExecutionOptimizationRules {
     }
 
     def apply[A](on: Dag[Execution]) = {
-      case z@Zipped(_, _) => optimize(z)
+      case z @ Zipped(_, _) => optimize(z)
       case _ =>
         // since this optimization only applies to zips, there
         // is no need to check on nodes that aren't zips.
@@ -342,7 +340,6 @@ object ExecutionOptimizationRules {
     }
   }
 
-
   val std: Rule[Execution] =
     Rule.orElse(
       List(
@@ -350,9 +347,7 @@ object ExecutionOptimizationRules {
         MapWrite,
         ZipMap,
         ZipFlatMap,
-        FuseMaps
-      )
-    )
+        FuseMaps))
 
   def apply[A](e: Execution[A], r: Rule[Execution]): Execution[A] = {
     try {

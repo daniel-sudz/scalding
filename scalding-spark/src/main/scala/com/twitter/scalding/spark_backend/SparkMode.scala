@@ -1,6 +1,6 @@
 package com.twitter.scalding.spark_backend
 
-import com.twitter.scalding.{Config, Mode, WritableSequenceFile, TextLine}
+import com.twitter.scalding.{ Config, Mode, WritableSequenceFile, TextLine }
 import com.twitter.scalding.typed.{ Resolver, TypedSource, TypedSink }
 import org.apache.spark.rdd.RDD
 import org.apache.spark.storage.StorageLevel
@@ -73,7 +73,8 @@ object SparkSource extends Serializable {
       }
     }
 
-  def writableSequenceFile[K <: Writable, V <: Writable](path: String,
+  def writableSequenceFile[K <: Writable, V <: Writable](
+    path: String,
     kclass: Class[K],
     vclass: Class[V]): SparkSource[(K, V)] = new SparkSource[(K, V)] {
     override def read(session: SparkSession, config: Config)(implicit ec: ExecutionContext): Future[RDD[_ <: (K, V)]] = {
@@ -92,7 +93,7 @@ object SparkSource extends Serializable {
       def apply[A](i: TypedSource[A]): Option[SparkSource[A]] = {
         i match {
           case ws @ WritableSequenceFile(path, _, _) =>
-              Some(writableSequenceFile(path, ws.keyType, ws.valueType))
+            Some(writableSequenceFile(path, ws.keyType, ws.valueType))
           case tl: TextLine =>
             // actually only one path:
             Some(textLine(tl.localPaths.head, None))

@@ -101,7 +101,8 @@ object OrderedSerialization {
     case NonFatal(e) => CompareFailure(e)
   }
 
-  private[this] def internalTransformer[T, U, V](packFn: T => U,
+  private[this] def internalTransformer[T, U, V](
+    packFn: T => U,
     unpackFn: U => V,
     presentFn: Try[V] => Try[T])(implicit otherOrdSer: OrderedSerialization[U]): OrderedSerialization[T] =
     {
@@ -152,7 +153,8 @@ object OrderedSerialization {
    * The the serialized comparison matches the unserialized comparison
    */
   def compareBinaryMatchesCompare[T](implicit ordb: OrderedSerialization[T]): Law2[T] =
-    Law2("compare(a, b) == compareBinary(aBin, bBin)",
+    Law2(
+      "compare(a, b) == compareBinary(aBin, bBin)",
       { (a: T, b: T) => resultFrom(ordb.compare(a, b)) == writeThenCompare(a, b) })
 
   /**
@@ -160,7 +162,8 @@ object OrderedSerialization {
    * will be broken
    */
   def orderingTransitive[T](implicit ordb: OrderedSerialization[T]): Law3[T] =
-    Law3("transitivity",
+    Law3(
+      "transitivity",
       { (a: T, b: T, c: T) =>
         if (ordb.lteq(a, b) && ordb.lteq(b, c)) { ordb.lteq(a, c) }
         else true
@@ -170,7 +173,8 @@ object OrderedSerialization {
    * will be broken
    */
   def orderingAntisymmetry[T](implicit ordb: OrderedSerialization[T]): Law2[T] =
-    Law2("antisymmetry",
+    Law2(
+      "antisymmetry",
       { (a: T, b: T) =>
         if (ordb.lteq(a, b) && ordb.lteq(b, a)) { ordb.equiv(a, b) }
         else true
@@ -183,7 +187,8 @@ object OrderedSerialization {
     Law2("totality", { (a: T, b: T) => (ordb.lteq(a, b) || ordb.lteq(b, a)) })
 
   def allLaws[T: OrderedSerialization]: Iterable[Law[T]] =
-    Serialization.allLaws ++ List[Law[T]](compareBinaryMatchesCompare[T],
+    Serialization.allLaws ++ List[Law[T]](
+      compareBinaryMatchesCompare[T],
       orderingTransitive[T],
       orderingAntisymmetry[T],
       orderingTotality[T])
@@ -197,7 +202,8 @@ object OrderedSerialization {
  * Note: it is your responsibility that the hash in serialization is consistent
  * with the ordering (if equivalent in the ordering, the hash must match).
  */
-final case class DeserializingOrderedSerialization[T](serialization: Serialization[T],
+final case class DeserializingOrderedSerialization[T](
+  serialization: Serialization[T],
   ordering: Ordering[T]) extends OrderedSerialization[T] {
 
   final override def read(i: InputStream) = serialization.read(i)

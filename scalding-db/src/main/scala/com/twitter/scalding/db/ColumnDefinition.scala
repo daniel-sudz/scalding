@@ -21,7 +21,8 @@ import com.twitter.scalding.TupleConverter
 case class ColumnName(toStr: String) extends AnyVal
 case class SqlTypeName(toStr: String) extends AnyVal
 
-case class ColumnDefinition(jdbcType: SqlType,
+case class ColumnDefinition(
+  jdbcType: SqlType,
   name: ColumnName,
   nullable: IsNullable,
   sizeOpt: Option[Int],

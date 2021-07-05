@@ -95,7 +95,8 @@ trait TypedSimilarity[N, E, S] extends Serializable {
    * The Edge.from nodes in the result will all satisfy smallpred, and the Edge.to will
    * all satisfy bigpred. It is more efficient if you keep the smallpred set smaller.
    */
-  def apply(g: TypedPipe[Edge[N, E]],
+  def apply(
+    g: TypedPipe[Edge[N, E]],
     smallpred: N => Boolean,
     bigpred: N => Boolean): TypedPipe[Edge[N, S]]
   // Do similarity on all the nodes
@@ -115,7 +116,8 @@ object TypedSimilarity extends Serializable {
   // key: document,
   // value: (word, documentsWithWord)
   // return: Edge of similarity between words measured by documents
-  def exactSetSimilarity[N: Ordering](g: Grouped[N, (N, Int)],
+  def exactSetSimilarity[N: Ordering](
+    g: Grouped[N, (N, Int)],
     smallpred: N => Boolean, bigpred: N => Boolean): TypedPipe[Edge[N, SetSimilarity]] =
     /* E_{ij} = 1 if document -> word exists
      * (E^T E)_ij = # of shared documents of i,j
@@ -146,7 +148,8 @@ object TypedSimilarity extends Serializable {
    * return: Edge of similarity between words measured by documents
    * See: https://arxiv.org/pdf/1206.2082v2.pdf
    */
-  def discoCosineSimilarity[N: Ordering](smallG: Grouped[N, (N, Int)],
+  def discoCosineSimilarity[N: Ordering](
+    smallG: Grouped[N, (N, Int)],
     bigG: Grouped[N, (N, Int)], oversample: Double): TypedPipe[Edge[N, Double]] = {
     // 1) make rnd lazy due to serialization,
     // 2) fix seed so that map-reduce speculative execution does not give inconsistent results.
@@ -183,7 +186,8 @@ object TypedSimilarity extends Serializable {
    * return: Edge of similarity between words measured by documents
    * See: https://stanford.edu/~rezab/papers/dimsum.pdf
    */
-  def dimsumCosineSimilarity[N: Ordering](smallG: Grouped[N, (N, Double, Double)],
+  def dimsumCosineSimilarity[N: Ordering](
+    smallG: Grouped[N, (N, Double, Double)],
     bigG: Grouped[N, (N, Double, Double)], oversample: Double): TypedPipe[Edge[N, Double]] = {
     lazy val rnd = new scala.util.Random(1024)
     maybeWithReducers(smallG.cogroup(bigG) { (n: N, leftit: Iterator[(N, Double, Double)], rightit: Iterable[(N, Double, Double)]) =>
@@ -219,7 +223,8 @@ object TypedSimilarity extends Serializable {
  */
 class ExactInCosine[N](reducers: Int = -1)(implicit override val nodeOrdering: Ordering[N]) extends TypedSimilarity[N, InDegree, Double] {
 
-  def apply(graph: TypedPipe[Edge[N, InDegree]],
+  def apply(
+    graph: TypedPipe[Edge[N, InDegree]],
     smallpred: N => Boolean, bigpred: N => Boolean): TypedPipe[Edge[N, Double]] = {
     val groupedOnSrc = graph
       .filter { e => smallpred(e.to) || bigpred(e.to) }
@@ -244,7 +249,8 @@ class DiscoInCosine[N](minCos: Double, delta: Double, boundedProb: Double, reduc
   // boundedProb ~ exp(-p delta^2 / 2)
   private val oversample = (-2.0 * scala.math.log(boundedProb) / (delta * delta)) / minCos
 
-  def apply(graph: TypedPipe[Edge[N, InDegree]],
+  def apply(
+    graph: TypedPipe[Edge[N, InDegree]],
     smallpred: N => Boolean, bigpred: N => Boolean): TypedPipe[Edge[N, Double]] = {
     val bigGroupedOnSrc = graph
       .filter { e => bigpred(e.to) }
@@ -268,7 +274,8 @@ class DimsumInCosine[N](minCos: Double, delta: Double, boundedProb: Double, redu
   // boundedProb ~ exp(-p delta^2 / 2)
   private val oversample = (-2.0 * scala.math.log(boundedProb) / (delta * delta)) / minCos
 
-  def apply(graph: TypedPipe[Edge[N, (Weight, L2Norm)]],
+  def apply(
+    graph: TypedPipe[Edge[N, (Weight, L2Norm)]],
     smallpred: N => Boolean, bigpred: N => Boolean): TypedPipe[Edge[N, Double]] = {
     val bigGroupedOnSrc = graph
       .filter { e => bigpred(e.to) }

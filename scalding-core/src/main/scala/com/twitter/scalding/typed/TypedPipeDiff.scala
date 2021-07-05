@@ -36,7 +36,8 @@ object TypedPipeDiff {
    * which has the correct hashCode and equals needed. This does not involve
    * copying the arrays, just wrapping them, and is specialized for primitive arrays.
    */
-  def diffArrayPipes[T: ClassTag](left: TypedPipe[Array[T]],
+  def diffArrayPipes[T: ClassTag](
+    left: TypedPipe[Array[T]],
     right: TypedPipe[Array[T]],
     reducers: Option[Int] = None): TypedPipe[(Array[T], (Long, Long))] = {
 

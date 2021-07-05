@@ -34,7 +34,8 @@ import scala.collection.JavaConverters._
 class Parquet346TBaseScheme[T <: TBase[_, _]](config: ParquetValueScheme.Config[T])
   extends ParquetTBaseScheme[T](config) {
 
-  override def sourceConfInit(fp: FlowProcess[JobConf],
+  override def sourceConfInit(
+    fp: FlowProcess[JobConf],
     tap: Tap[JobConf, RecordReader[_, _], OutputCollector[_, _]],
     jobConf: JobConf): Unit = {
 
@@ -52,7 +53,8 @@ class Parquet346TBaseScheme[T <: TBase[_, _]](config: ParquetValueScheme.Config[
  * ThriftSchemaConverter to not throw, but we can put dummy data in there because it's not actually
  * used.
  */
-class Parquet346TBaseRecordConverter[T <: TBase[_, _]](thriftClass: Class[T],
+class Parquet346TBaseRecordConverter[T <: TBase[_, _]](
+  thriftClass: Class[T],
   requestedParquetSchema: MessageType, thriftType: ThriftType.StructType) extends ThriftRecordConverter[T](
   // this is a little confusing because it's all being passed to the super constructor
 

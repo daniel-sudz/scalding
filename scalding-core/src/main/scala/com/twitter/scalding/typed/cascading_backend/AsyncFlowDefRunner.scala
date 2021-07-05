@@ -36,7 +36,8 @@ object AsyncFlowDefRunner {
    * We send messages from other threads into the submit thread here
    */
   private sealed trait FlowDefAction
-  private final case class RunFlowDef(conf: Config,
+  private final case class RunFlowDef(
+    conf: Config,
     fd: FlowDef,
     result: CPromise[(Long, JobStats)]) extends FlowDefAction
   private final case class StopFlow(flow: Flow[_], result: Promise[Unit]) extends FlowDefAction
@@ -119,14 +120,16 @@ class AsyncFlowDefRunner(mode: CascadingMode) extends Writer {
      * Returns true if we actually add this optimized pipe. We do this
      * because we don't want to take the side effect twice.
      */
-    def addForce[T](c: Config,
+    def addForce[T](
+      c: Config,
       init: TypedPipe[T],
       opt: TypedPipe[T],
       p: Future[TypedPipe[T]]): (State, Boolean) =
 
       forcedPipes.get((c, opt)) match {
         case None =>
-          (copy(forcedPipes = forcedPipes + ((c, opt) -> p),
+          (copy(
+            forcedPipes = forcedPipes + ((c, opt) -> p),
             initToOpt = initToOpt + ((c, init) -> opt)), true)
         case Some(_) =>
           (copy(initToOpt = initToOpt + ((c, init) -> opt)), false)
@@ -255,7 +258,8 @@ class AsyncFlowDefRunner(mode: CascadingMode) extends Writer {
    * calls runFlowDef, then clears the FlowStateMap
    */
   def validateAndRun(conf: Config)(fn: Config => FlowDef)(
-    implicit cec: ConcurrentExecutionContext): CFuture[(Long, ExecutionCounters)] = {
+    implicit
+    cec: ConcurrentExecutionContext): CFuture[(Long, ExecutionCounters)] = {
     val tFlowDef = Try(fn(conf)).map { flowDef =>
       FlowStateMap.validateSources(flowDef, mode)
       flowDef
@@ -394,7 +398,7 @@ class AsyncFlowDefRunner(mode: CascadingMode) extends Writer {
     uuid: UUID,
     conf: Config,
     pipe: TypedPipe[T] // note, we don't use this, but it fixes the type T
-    ): (typed.TypedSink[T], () => TypedPipe[T], Option[String]) =
+  ): (typed.TypedSink[T], () => TypedPipe[T], Option[String]) =
 
     mode match {
       case _: CascadingLocal => // Local or Test mode

@@ -45,7 +45,8 @@ object TestTapFactory extends Serializable {
     override def sinkFields: Fields = fields
   }
   def apply[A, B](src: Source, scheme: Scheme[JobConf, RecordReader[_, _], OutputCollector[_, _], A, B]): TestTapFactory = apply(src, scheme, SinkMode.REPLACE)
-  def apply[A, B](src: Source,
+  def apply[A, B](
+    src: Source,
     scheme: Scheme[JobConf, RecordReader[_, _], OutputCollector[_, _], A, B], sinkMode: SinkMode): TestTapFactory =
     new TestTapFactory(src, sinkMode) { override def hdfsScheme = Some(scheme) }
 }

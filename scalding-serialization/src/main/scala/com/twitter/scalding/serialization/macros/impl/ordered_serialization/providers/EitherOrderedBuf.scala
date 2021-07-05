@@ -29,7 +29,8 @@ object EitherOrderedBuf {
       EitherOrderedBuf(c)(buildDispatcher, tpe)
   }
 
-  def apply(c: Context)(buildDispatcher: => PartialFunction[c.Type, TreeOrderedBuf[c.type]],
+  def apply(c: Context)(
+    buildDispatcher: => PartialFunction[c.Type, TreeOrderedBuf[c.type]],
     outerType: c.Type): TreeOrderedBuf[c.type] = {
     import c.universe._
     def freshT(id: String) = TermName(c.freshName(id))

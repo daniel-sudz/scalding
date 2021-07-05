@@ -5,7 +5,8 @@ import scala.reflect.macros.Context
 import com.twitter.scalding.db.macros.impl.FieldName
 
 object ColumnFormat {
-  def apply(c: Context)(fAccessor: List[c.universe.MethodSymbol], fType: String, size: Option[Int])(implicit fName: FieldName,
+  def apply(c: Context)(fAccessor: List[c.universe.MethodSymbol], fType: String, size: Option[Int])(implicit
+    fName: FieldName,
     isNullable: Boolean, defaultV: Option[c.Expr[String]]): ColumnFormat[c.type] = {
 
     new ColumnFormat[c.type](c) {

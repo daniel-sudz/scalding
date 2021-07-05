@@ -7,7 +7,8 @@ import com.twitter.scalding.serialization.Externalizer
 import scala.collection.JavaConverters._
 import com.twitter.scalding.typed.MultiJoinFunction
 
-abstract class CoGroupedJoiner[K](inputSize: Int,
+abstract class CoGroupedJoiner[K](
+  inputSize: Int,
   getter: TupleGetter[K],
   @transient inJoinFunction: MultiJoinFunction[K, Any]) extends CJoiner {
 

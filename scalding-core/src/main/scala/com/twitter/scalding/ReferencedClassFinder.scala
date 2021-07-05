@@ -4,7 +4,7 @@ import com.twitter.scalding.typed.CoGroupable
 import org.slf4j.LoggerFactory
 import scala.reflect.runtime.universe
 import scala.reflect.runtime.universe.{ NullaryMethodType, RuntimeMirror, Symbol, Type, TypeRef }
-import java.lang.{reflect => jReflect}
+import java.lang.{ reflect => jReflect }
 
 object ReferencedClassFinder {
 

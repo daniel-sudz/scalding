@@ -82,7 +82,8 @@ object WritePartitioner {
     mat.sequence_(toSeq)
   }
 
-  def materialize1[M[+_], S[_]](phases: Seq[Rule[TypedPipe]],
+  def materialize1[M[+_], S[_]](
+    phases: Seq[Rule[TypedPipe]],
     ws: List[PairK[TypedPipe, S, _]])(implicit mat: Materializer[M]): List[PairK[mat.TP, S, _]] = {
     val e = Dag.empty(OptimizationRules.toLiteral)
 
@@ -97,24 +98,24 @@ object WritePartitioner {
     val optDag = finalDag.applySeq(phases :+ OptimizationRules.RemoveUselessFork)
     logger.info(s"optimized graph hash size: ${optDag.allNodes.size}")
 
-    import TypedPipe.{ReduceStepPipe, HashCoGroup}
+    import TypedPipe.{ ReduceStepPipe, HashCoGroup }
 
     def handleHashCoGroup[K, V, V2, R](hj: HashCoGroup[K, V, V2, R], recurse: FunctionK[TypedPipe, mat.TP]): mat.TP[(K, R)] = {
       import TypedPipe._
       val exright: M[HashJoinable[K, V2]] = hj.right match {
-        case step@IdentityReduce(_, _, _, _, _) =>
+        case step @ IdentityReduce(_, _, _, _, _) =>
           type TK[+Z] = TypedPipe[(K, Z)]
           val mappedV2 = step.evidence.subst[TK](step.mapped)
           mat.map(recurse(mappedV2)) { (tp: TypedPipe[(K, V2)]) =>
             IdentityReduce[K, V2, V2](step.keyOrdering, tp, step.reducers, step.descriptions, implicitly)
           }
-        case step@UnsortedIdentityReduce(_, _, _, _, _) =>
+        case step @ UnsortedIdentityReduce(_, _, _, _, _) =>
           type TK[+Z] = TypedPipe[(K, Z)]
           val mappedV2 = step.evidence.subst[TK](step.mapped)
           mat.map(recurse(mappedV2)) { (tp: TypedPipe[(K, V2)]) =>
             UnsortedIdentityReduce[K, V2, V2](step.keyOrdering, tp, step.reducers, step.descriptions, implicitly)
           }
-        case step@IteratorMappedReduce(_, _, _, _, _) =>
+        case step @ IteratorMappedReduce(_, _, _, _, _) =>
           def go[A, B, C](imr: IteratorMappedReduce[A, B, C]) =
             mat.map(recurse(imr.mapped)) { (tp: TypedPipe[(A, B)]) => imr.copy(mapped = tp) }
 
@@ -122,8 +123,9 @@ object WritePartitioner {
       }
 
       val zipped = mat.zip(recurse(hj.left), exright)
-      mat.map(zipped) { case (left, right) =>
-        HashCoGroup(left, right, hj.joiner)
+      mat.map(zipped) {
+        case (left, right) =>
+          HashCoGroup(left, right, hj.joiner)
       }
     }
 
@@ -152,17 +154,18 @@ object WritePartitioner {
         }
 
       cg match {
-        case p@Pair(_, _, _) =>
+        case p @ Pair(_, _, _) =>
           def go[A, B, C](pair: Pair[K, A, B, C]): mat.TP[(K, C)] = {
             val mleft = handleCoGrouped(pair.larger, recurse)
             val mright = handleCoGrouped(pair.smaller, recurse)
             val both = mat.zip(mleft, mright)
-            mat.map(both) { case (l, r) =>
-              CoGroupedPipe(Pair(pipeToCG(l), pipeToCG(r), pair.fn))
+            mat.map(both) {
+              case (l, r) =>
+                CoGroupedPipe(Pair(pipeToCG(l), pipeToCG(r), pair.fn))
             }
           }
           widen(go(p))
-        case wr@WithReducers(_, _) =>
+        case wr @ WithReducers(_, _) =>
           def go[V1 <: V](wr: WithReducers[K, V1]): mat.TP[(K, V)] = {
             val reds = wr.reds
             mat.map(handleCoGrouped(wr.on, recurse)) { (tp: TypedPipe[(K, V1)]) =>
@@ -178,7 +181,7 @@ object WritePartitioner {
             }
           }
           go(wr)
-        case wd@WithDescription(_, _) =>
+        case wd @ WithDescription(_, _) =>
           def go[V1 <: V](wd: WithDescription[K, V1]): mat.TP[(K, V)] = {
             val desc = wd.description
             mat.map(handleCoGrouped(wd.on, recurse)) { (tp: TypedPipe[(K, V1)]) =>
@@ -193,7 +196,7 @@ object WritePartitioner {
             }
           }
           go(wd)
-        case fk@CoGrouped.FilterKeys(_, _) =>
+        case fk @ CoGrouped.FilterKeys(_, _) =>
           def go[V1 <: V](fk: CoGrouped.FilterKeys[K, V1]): mat.TP[(K, V)] = {
             val fn = fk.fn
             mat.map(handleCoGrouped(fk.on, recurse)) { (tp: TypedPipe[(K, V1)]) =>
@@ -210,7 +213,7 @@ object WritePartitioner {
             }
           }
           go(fk)
-        case mg@MapGroup(_, _) =>
+        case mg @ MapGroup(_, _) =>
           def go[V1, V2 <: V](mg: MapGroup[K, V1, V2]): mat.TP[(K, V)] = {
             val fn = mg.fn
             mat.map(handleCoGrouped(mg.on, recurse)) { (tp: TypedPipe[(K, V1)]) =>
@@ -226,11 +229,11 @@ object WritePartitioner {
             }
           }
           go(mg)
-        case step@IdentityReduce(_, _, _, _, _) =>
+        case step @ IdentityReduce(_, _, _, _, _) =>
           widen(handleReduceStep(step, recurse)) // the widen trick sidesteps GADT bugs
-        case step@UnsortedIdentityReduce(_, _, _, _, _) =>
+        case step @ UnsortedIdentityReduce(_, _, _, _, _) =>
           widen(handleReduceStep(step, recurse))
-        case step@IteratorMappedReduce(_, _, _, _, _) =>
+        case step @ IteratorMappedReduce(_, _, _, _, _) =>
           widen(handleReduceStep(step, recurse))
       }
     }
@@ -246,8 +249,8 @@ object WritePartitioner {
       tp match {
         case EmptyTypedPipe | IterablePipe(_) | SourcePipe(_) => false
         case CounterPipe(a) => isLogicalReduce(a)
-        case cp@CrossPipe(_, _) => isLogicalReduce(cp.viaHashJoin)
-        case cp@CrossValue(_, _) => isLogicalReduce(cp.viaHashJoin)
+        case cp @ CrossPipe(_, _) => isLogicalReduce(cp.viaHashJoin)
+        case cp @ CrossValue(_, _) => isLogicalReduce(cp.viaHashJoin)
         case DebugPipe(p) => isLogicalReduce(p)
         case FilterKeys(p, _) => isLogicalReduce(p)
         case Filter(p, _) => isLogicalReduce(p)
@@ -306,7 +309,7 @@ object WritePartitioner {
             mat.map(rec((cp.pipe, bs)))(CounterPipe(_: TypedPipe[(a, Iterable[((String, String), Long)])]))
           case ((c: CrossPipe[a, b], bs), rec) =>
             rec((c.viaHashJoin, bs))
-          case ((cv@CrossValue(_, _), bs), rec) =>
+          case ((cv @ CrossValue(_, _), bs), rec) =>
             rec((cv.viaHashJoin, bs))
           case ((p: DebugPipe[a], bs), rec) =>
             mat.map(rec((p.input, bs)))(DebugPipe(_: TypedPipe[a]))
@@ -322,10 +325,10 @@ object WritePartitioner {
             mat.map(rec((p.input, bs | OnlyMapping)))(FlatMapValues(_: TypedPipe[(a, b)], p.fn))
           case ((p: FlatMapped[a, b], bs), rec) =>
             mat.map(rec((p.input, bs | OnlyMapping)))(FlatMapped(_: TypedPipe[a], p.fn))
-          case ((ForceToDisk(src@IterablePipe(_)), bs), rec) =>
+          case ((ForceToDisk(src @ IterablePipe(_)), bs), rec) =>
             // no need to put a checkpoint here:
             rec((src, bs))
-          case ((ForceToDisk(src@SourcePipe(_)), bs), rec) =>
+          case ((ForceToDisk(src @ SourcePipe(_)), bs), rec) =>
             // no need to put a checkpoint here:
             rec((src, bs))
           case ((p: ForceToDisk[a], bs), rec) =>
@@ -339,7 +342,7 @@ object WritePartitioner {
                 matP
               case _ => mat.materialize(matP)
             }
-          case ((it@IterablePipe(_), _), _) =>
+          case ((it @ IterablePipe(_), _), _) =>
             mat.pure(it)
           case ((p: MapValues[a, b, c], bs), rec) =>
             mat.map(rec((p.input, bs | OnlyMapping)))(MapValues(_: TypedPipe[(a, b)], p.fn))
@@ -350,7 +353,7 @@ object WritePartitioner {
             val mright = rec((p.right, bs))
             val both = mat.zip(mleft, mright)
             mat.map(both) { case (l, r) => MergedTypedPipe(l, r) }
-          case ((src@SourcePipe(_), _), _) =>
+          case ((src @ SourcePipe(_), _), _) =>
             mat.pure(src)
           case ((p: SumByLocalKeys[a, b], bs), rec) =>
             mat.map(rec((p.input, bs | OnlyMapping)))(SumByLocalKeys(_: TypedPipe[(a, b)], p.semigroup))

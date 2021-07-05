@@ -1,17 +1,17 @@
 package com.twitter.scalding.spark_backend
 
-import org.apache.spark.{HashPartitioner, Partitioner}
-import org.apache.spark.rdd.{RDD, UnionRDD}
+import org.apache.spark.{ HashPartitioner, Partitioner }
+import org.apache.spark.rdd.{ RDD, UnionRDD }
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.storage.StorageLevel
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 import scala.reflect.ClassTag
-import com.twitter.scalding.{Config, FutureCache}
+import com.twitter.scalding.{ Config, FutureCache }
 import com.twitter.scalding.typed.TypedSource
 import SparkPlanner.PartitionComputer
 
 sealed abstract class Op[+A] {
-  import Op.{Transformed, fakeClassTag}
+  import Op.{ Transformed, fakeClassTag }
 
   def run(session: SparkSession)(implicit ec: ExecutionContext): Future[RDD[_ <: A]]
 

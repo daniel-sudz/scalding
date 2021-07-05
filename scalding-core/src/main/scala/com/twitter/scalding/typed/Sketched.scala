@@ -26,12 +26,14 @@ import com.twitter.algebird.CMSMonoid
  * This class is generally only created by users
  * with the TypedPipe.sketch method
  */
-case class Sketched[K, V](pipe: TypedPipe[(K, V)],
+case class Sketched[K, V](
+  pipe: TypedPipe[(K, V)],
   numReducers: Int,
   delta: Double,
   eps: Double,
-  seed: Int)(implicit val serialization: K => Array[Byte],
-    ordering: Ordering[K])
+  seed: Int)(implicit
+  val serialization: K => Array[Byte],
+  ordering: Ordering[K])
   extends MustHaveReducers {
 
   def reducers = Some(numReducers)
@@ -78,7 +80,8 @@ case class Sketched[K, V](pipe: TypedPipe[(K, V)],
     cogroup(right)(Joiner.hashLeft2)
 }
 
-case class SketchJoined[K: Ordering, V, V2, R](left: Sketched[K, V],
+case class SketchJoined[K: Ordering, V, V2, R](
+  left: Sketched[K, V],
   right: TypedPipe[(K, V2)],
   numReducers: Int)(joiner: (K, V, Iterable[V2]) => Iterator[R])
   extends MustHaveReducers {

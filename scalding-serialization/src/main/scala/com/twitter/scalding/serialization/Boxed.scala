@@ -530,7 +530,8 @@ class Boxed249[K](override val get: K) extends Boxed[K]
 
 class Boxed250[K](override val get: K) extends Boxed[K]
 
-case class BoxedOrderedSerialization[K](box: K => Boxed[K],
+case class BoxedOrderedSerialization[K](
+  box: K => Boxed[K],
   ord: OrderedSerialization[K]) extends OrderedSerialization[Boxed[K]] {
 
   override def compare(a: Boxed[K], b: Boxed[K]) = ord.compare(a.get, b.get)

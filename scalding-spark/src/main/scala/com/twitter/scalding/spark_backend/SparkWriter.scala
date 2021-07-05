@@ -5,7 +5,7 @@ import com.stripe.dagon.{ HMap, Rule }
 import com.twitter.scalding.typed._
 import com.twitter.scalding.Mode
 import com.twitter.scalding.typed.memory_backend.AtomicBox
-import com.twitter.scalding.{ Config, Execution, ExecutionCounters, CancellationHandler, CFuture}
+import com.twitter.scalding.{ Config, Execution, ExecutionCounters, CancellationHandler, CFuture }
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.rdd.RDD
 import org.apache.spark.storage.StorageLevel
@@ -186,8 +186,7 @@ class SparkWriter(val sparkMode: SparkMode) extends Writer {
             val rddF = op.run(session)
             promise.completeWith(rddF)
             rddF.map(_ => ())
-          }
-          else Future.successful(())
+          } else Future.successful(())
 
         rddF.flatMap(_ => newState.write(conf, keyPipe, sink))
       }
@@ -200,10 +199,10 @@ class SparkWriter(val sparkMode: SparkMode) extends Writer {
      */
     val (id: Long, acts) = state.update { s =>
       val (nextState, acts) = optimizedWrites.foldLeft((s, List.empty[Action])) {
-        case (old@(state, acts), OptimizedWrite(pipe, Force(opt))) =>
+        case (old @ (state, acts), OptimizedWrite(pipe, Force(opt))) =>
           val (st, a) = force(opt, pipe, state)
           (st, a :: acts)
-        case (old@(state, acts), OptimizedWrite(pipe, ToIterable(opt))) =>
+        case (old @ (state, acts), OptimizedWrite(pipe, ToIterable(opt))) =>
           val (st, a) = force(opt, pipe, state)
           (st, a :: acts)
         case ((state, acts), OptimizedWrite(pipe, ToWrite.SimpleWrite(opt, sink))) =>

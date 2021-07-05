@@ -26,7 +26,8 @@ import cascading.operation.Debug.Output
  * This is based on work by: https://github.com/granthenke
  * https://github.com/twitter/scalding/pull/559
  */
-case class PipeDebug(output: Output = Output.STDERR,
+case class PipeDebug(
+  output: Output = Output.STDERR,
   prefix: String = null,
   printFieldsEvery: Option[Int] = None,
   printTuplesEvery: Int = 1) {

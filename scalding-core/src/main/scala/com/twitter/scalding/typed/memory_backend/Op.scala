@@ -13,7 +13,7 @@ sealed trait Op[+O] {
     transform { in: IndexedSeq[O] =>
       val res = ArrayBuffer[O1]()
       val it = in.iterator
-      while(it.hasNext) {
+      while (it.hasNext) {
         val i = it.next
         fn(i).foreach(res += _)
       }
@@ -51,7 +51,7 @@ object Op {
         case None =>
           val promise = Promise[ArrayBuffer[_ <: O]]()
           (Some(promise), Right(promise))
-        case s@Some(promise) =>
+        case s @ Some(promise) =>
           (s, Left(promise))
       }
 
@@ -72,9 +72,10 @@ object Op {
     def result(implicit cec: ConcurrentExecutionContext) = {
       val f1 = left.result
       val f2 = right.result
-      f1.zip(f2).map { case (l, r) =>
-        if (l.size > r.size) l.asInstanceOf[ArrayBuffer[O]] ++= r
-        else r.asInstanceOf[ArrayBuffer[O]] ++= l
+      f1.zip(f2).map {
+        case (l, r) =>
+          if (l.size > r.size) l.asInstanceOf[ArrayBuffer[O]] ++= r
+          else r.asInstanceOf[ArrayBuffer[O]] ++= l
       }
     }
   }
@@ -85,7 +86,7 @@ object Op {
       input.result.map { array =>
         val res: ArrayBuffer[O] = array.asInstanceOf[ArrayBuffer[O]]
         var pos = 0
-        while(pos < array.length) {
+        while (pos < array.length) {
           res.update(pos, fn(array(pos)))
           pos = pos + 1
         }
@@ -99,7 +100,7 @@ object Op {
         val array = array0.asInstanceOf[ArrayBuffer[I]]
         var pos = 0
         var writePos = 0
-        while(pos < array.length) {
+        while (pos < array.length) {
           val item = array(pos)
           if (fn(item)) {
             array(writePos) = item
@@ -129,8 +130,7 @@ object Op {
   final case class Reduce[K, V1, V2](
     input: Op[(K, V1)],
     fn: (K, Iterator[V1]) => Iterator[V2],
-    ord: Option[Ordering[V1]]
-    ) extends Op[(K, V2)] {
+    ord: Option[Ordering[V1]]) extends Op[(K, V2)] {
 
     def result(implicit cec: ConcurrentExecutionContext): Future[ArrayBuffer[(K, V2)]] =
       input.result.map { kvs =>
@@ -146,15 +146,16 @@ object Op {
          * the keys into as many groups as there are CPUs and process that way
          */
         val res = ArrayBuffer[(K, V2)]()
-        valuesByKey.foreach { case (k, vs) =>
-          ord.foreach(Collections.sort[V1](vs, _))
-          val v2iter = fn(k, vs.iterator.asScala)
-          while(v2iter.hasNext) {
-            res += ((k, v2iter.next))
-          }
+        valuesByKey.foreach {
+          case (k, vs) =>
+            ord.foreach(Collections.sort[V1](vs, _))
+            val v2iter = fn(k, vs.iterator.asScala)
+            while (v2iter.hasNext) {
+              res += ((k, v2iter.next))
+            }
         }
         res
-    }
+      }
   }
 
   final case class Join[A, B, C](

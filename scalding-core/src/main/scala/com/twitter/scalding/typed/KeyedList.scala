@@ -355,8 +355,8 @@ trait KeyedListLike[K, +T, +This[K, +T] <: KeyedListLike[K, T, This]] extends Se
   def minBy[B](fn: T => B)(implicit cmp: Ordering[B]): This[K, T] =
     reduce(MinOrdBy(fn, cmp))
 
-
-  /** Use this to error if there is more than 1 value per key
+  /**
+   * Use this to error if there is more than 1 value per key
    *  Using this makes it easier to detect when data does
    *  not have the shape you expect and to communicate to
    *  scalding that certain optimizations are safe to do

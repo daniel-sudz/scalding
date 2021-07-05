@@ -244,8 +244,9 @@ object ReplImplicits extends FieldConversions {
    * @return a Source backed by the specified iterable.
    */
   implicit def iterableToSource[T](
-    iterable: Iterable[T])(implicit setter: TupleSetter[T],
-      converter: TupleConverter[T]): Source = {
+    iterable: Iterable[T])(implicit
+    setter: TupleSetter[T],
+    converter: TupleConverter[T]): Source = {
     IterableSource[T](iterable)(setter, converter)
   }
 
@@ -258,8 +259,9 @@ object ReplImplicits extends FieldConversions {
    * @return a Pipe backed by the specified iterable.
    */
   implicit def iterableToPipe[T](
-    iterable: Iterable[T])(implicit setter: TupleSetter[T],
-      converter: TupleConverter[T], flowDef: FlowDef, mode: Mode): Pipe = {
+    iterable: Iterable[T])(implicit
+    setter: TupleSetter[T],
+    converter: TupleConverter[T], flowDef: FlowDef, mode: Mode): Pipe = {
     iterableToSource(iterable)(setter, converter).read
   }
 
@@ -273,8 +275,9 @@ object ReplImplicits extends FieldConversions {
    * @return a RichPipe backed by the specified iterable.
    */
   implicit def iterableToRichPipe[T](
-    iterable: Iterable[T])(implicit setter: TupleSetter[T],
-      converter: TupleConverter[T], flowDef: FlowDef, mode: Mode): RichPipe = {
+    iterable: Iterable[T])(implicit
+    setter: TupleSetter[T],
+    converter: TupleConverter[T], flowDef: FlowDef, mode: Mode): RichPipe = {
     RichPipe(iterableToPipe(iterable)(setter, converter, flowDef, mode))
   }
 

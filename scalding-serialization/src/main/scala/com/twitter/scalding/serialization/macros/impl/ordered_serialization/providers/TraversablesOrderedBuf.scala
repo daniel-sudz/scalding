@@ -101,7 +101,8 @@ object TraversablesOrderedBuf {
     // When dealing with a map we have 2 type args, and need to generate the tuple type
     // it would correspond to if we .toList the Map.
     val innerType = if (outerType.asInstanceOf[TypeRefApi].args.size == 2) {
-      val (tpe1, tpe2) = (outerType.asInstanceOf[TypeRefApi].args.head,
+      val (tpe1, tpe2) = (
+        outerType.asInstanceOf[TypeRefApi].args.head,
         outerType.asInstanceOf[TypeRefApi].args(1)) // linter:ignore
       val containerType = typeOf[Tuple2[Any, Any]].asInstanceOf[TypeRef]
       import compat._

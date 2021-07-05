@@ -39,7 +39,8 @@ object TraversableHelpers {
   }
 
   final def iteratorCompare[T](iteratorA: Iterator[T], iteratorB: Iterator[T])(
-    implicit ord: Ordering[T]): Int = {
+    implicit
+    ord: Ordering[T]): Int = {
     @annotation.tailrec
     def result: Int =
       if (iteratorA.isEmpty) {
@@ -58,7 +59,8 @@ object TraversableHelpers {
   }
 
   final def iteratorEquiv[T](iteratorA: Iterator[T], iteratorB: Iterator[T])(
-    implicit eq: Equiv[T]): Boolean = {
+    implicit
+    eq: Equiv[T]): Boolean = {
     @annotation.tailrec
     def result: Boolean =
       if (iteratorA.isEmpty) iteratorB.isEmpty
@@ -79,7 +81,8 @@ object TraversableHelpers {
    * sort case
    */
   final def sortedCompare[T](travA: Iterable[T], travB: Iterable[T])(
-    implicit ord: Ordering[T]): Int = {
+    implicit
+    ord: Ordering[T]): Int = {
     def compare(startA: Int, endA: Int, a: Buffer[T], startB: Int, endB: Int, b: Buffer[T]): Int =
       if (startA == endA) {
         if (startB == endB) 0 // both empty
@@ -87,7 +90,8 @@ object TraversableHelpers {
       } else if (startB == endB) 1 // non-empty is bigger than empty
       else {
         @annotation.tailrec
-        def partition(pivot: T,
+        def partition(
+          pivot: T,
           pivotStart: Int,
           pivotEnd: Int,
           endX: Int,

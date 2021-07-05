@@ -445,9 +445,10 @@ class RichPipe(val pipe: Pipe) extends java.io.Serializable with JoinAlgorithms 
    */
   def partition[A, R](fs: (Fields, Fields))(fn: (A) => R)(
     builder: GroupBuilder => GroupBuilder)(
-      implicit conv: TupleConverter[A],
-      ord: Ordering[R],
-      rset: TupleSetter[R]): Pipe = {
+    implicit
+    conv: TupleConverter[A],
+    ord: Ordering[R],
+    rset: TupleSetter[R]): Pipe = {
     val (fromFields, toFields) = fs
     conv.assertArityMatches(fromFields)
     rset.assertArityMatches(toFields)

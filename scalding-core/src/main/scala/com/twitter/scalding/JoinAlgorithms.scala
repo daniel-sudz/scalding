@@ -257,7 +257,8 @@ trait JoinAlgorithms {
    * You can only use an InnerJoin or a LeftJoin with a leftReplication of 1
    * (or a RightJoin with a rightReplication of 1) when doing a blockJoin.
    */
-  def blockJoinWithSmaller(fs: (Fields, Fields),
+  def blockJoinWithSmaller(
+    fs: (Fields, Fields),
     otherPipe: Pipe, rightReplication: Int = 1, leftReplication: Int = 1,
     joiner: Joiner = new InnerJoin, reducers: Int = -1): Pipe = {
 

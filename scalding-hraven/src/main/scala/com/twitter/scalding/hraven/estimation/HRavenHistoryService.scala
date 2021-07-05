@@ -23,7 +23,8 @@ object HRavenClient {
 
   def apply(conf: JobConf): Try[HRavenRestClient] =
     conf.getFirstKey(apiHostnameKey)
-      .map(new HRavenRestClient(_,
+      .map(new HRavenRestClient(
+        _,
         conf.getInt(clientConnectTimeoutKey, clientConnectTimeoutDefault),
         conf.getInt(clientReadTimeoutKey, clientReadTimeoutDefault)))
 }

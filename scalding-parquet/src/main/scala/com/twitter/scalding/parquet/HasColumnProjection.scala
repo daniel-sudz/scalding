@@ -42,7 +42,8 @@ trait HasColumnProjection {
     val deprecated = withColumns
     val strict = withColumnProjections
 
-    require(deprecated.isEmpty || strict.isEmpty,
+    require(
+      deprecated.isEmpty || strict.isEmpty,
       "Cannot provide both withColumns and withColumnProjections")
 
     deprecated.foreach(requireNoSemiColon)

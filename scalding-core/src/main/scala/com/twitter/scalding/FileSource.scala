@@ -15,23 +15,23 @@ limitations under the License.
 */
 package com.twitter.scalding
 
-import java.io.{InputStream, OutputStream}
-import java.util.{Properties, UUID}
+import java.io.{ InputStream, OutputStream }
+import java.util.{ Properties, UUID }
 import cascading.scheme.Scheme
-import cascading.scheme.hadoop.{SequenceFile => CHSequenceFile, TextDelimited => CHTextDelimited, TextLine => CHTextLine}
-import cascading.scheme.local.{TextDelimited => CLTextDelimited, TextLine => CLTextLine}
+import cascading.scheme.hadoop.{ SequenceFile => CHSequenceFile, TextDelimited => CHTextDelimited, TextLine => CHTextLine }
+import cascading.scheme.local.{ TextDelimited => CLTextDelimited, TextLine => CLTextLine }
 import cascading.tap.hadoop.Hfs
-import cascading.tap.{MultiSourceTap, SinkMode, Tap}
+import cascading.tap.{ MultiSourceTap, SinkMode, Tap }
 import cascading.tap.local.FileTap
 import cascading.tuple.Fields
 import com.etsy.cascading.tap.local.LocalTap
-import com.twitter.algebird.{MapAlgebra, OrVal}
+import com.twitter.algebird.{ MapAlgebra, OrVal }
 import com.twitter.scalding.tap.ScaldingHfs
 import org.apache.hadoop.conf.Configuration
-import org.apache.hadoop.fs.{FileStatus, Path, PathFilter}
-import org.apache.hadoop.mapred.{JobConf, OutputCollector, RecordReader}
+import org.apache.hadoop.fs.{ FileStatus, Path, PathFilter }
+import org.apache.hadoop.mapred.{ JobConf, OutputCollector, RecordReader }
 import org.slf4j.LoggerFactory
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 /**
  * A base class for sources that take a scheme trait.
@@ -51,7 +51,8 @@ abstract class SchemedSource extends Source {
 }
 
 trait HfsTapProvider {
-  def createHfsTap(scheme: Scheme[JobConf, RecordReader[_, _], OutputCollector[_, _], _, _],
+  def createHfsTap(
+    scheme: Scheme[JobConf, RecordReader[_, _], OutputCollector[_, _], _, _],
     path: String,
     sinkMode: SinkMode): Hfs =
     new ScaldingHfs(scheme, path, sinkMode)
@@ -195,8 +196,7 @@ object FileSource {
         //
         dir -> (
           OrVal(SuccessFileFilter.accept(fileStatus.getPath) && fileStatus.isFile),
-          OrVal(HiddenFileFilter.accept(fileStatus.getPath))
-        )
+          OrVal(HiddenFileFilter.accept(fileStatus.getPath)))
       }
 
     // OR by key
@@ -502,7 +502,8 @@ case class MultipleTsvFiles(p: Seq[String], override val fields: Fields = Fields
  * Csv value source
  * separated by commas and quotes wrapping all fields
  */
-case class Csv(p: String,
+case class Csv(
+  p: String,
   override val separator: String = ",",
   override val fields: Fields = Fields.ALL,
   override val skipHeader: Boolean = false,
@@ -540,7 +541,8 @@ class TextLine(p: String, override val sinkMode: SinkMode, override val textEnco
 /**
  * Alternate typed TextLine source that keeps both 'offset and 'line fields.
  */
-class OffsetTextLine(filepath: String,
+class OffsetTextLine(
+  filepath: String,
   override val sinkMode: SinkMode,
   override val textEncoding: String)
   extends FixedPathSource(filepath) with Mappable[(Long, String)] with TextSourceScheme {
@@ -574,7 +576,8 @@ case class MultipleTextLineFiles(p: String*) extends FixedPathSource(p: _*) with
  * Delimited files source
  * allowing to override separator and quotation characters and header configuration
  */
-case class MultipleDelimitedFiles(f: Fields,
+case class MultipleDelimitedFiles(
+  f: Fields,
   override val separator: String,
   override val quote: String,
   override val skipHeader: Boolean,

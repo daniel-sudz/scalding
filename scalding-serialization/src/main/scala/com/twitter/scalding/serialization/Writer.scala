@@ -29,7 +29,8 @@ trait Writer[@specialized(Boolean, Byte, Short, Int, Long, Float, Double) -T] {
 object Writer {
   import JavaStreamEnrichments._
 
-  def write[@specialized(Boolean, Byte, Short, Int, Long, Float, Double) T](os: OutputStream,
+  def write[@specialized(Boolean, Byte, Short, Int, Long, Float, Double) T](
+    os: OutputStream,
     t: T)(implicit w: Writer[T]): Unit =
     w.write(os, t)
   /*

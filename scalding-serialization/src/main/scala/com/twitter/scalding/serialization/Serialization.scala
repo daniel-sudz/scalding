@@ -146,7 +146,8 @@ object Serialization {
    * The sizes must match and be correct if they are present
    */
   def sizeLaw[T: Serialization]: Law1[T] =
-    Law1("staticSize.orElse(dynamicSize(t)).map { _ == toBytes(t).length }",
+    Law1(
+      "staticSize.orElse(dynamicSize(t)).map { _ == toBytes(t).length }",
       { (t: T) =>
         val ser = implicitly[Serialization[T]]
         (ser.staticSize, ser.dynamicSize(t)) match {
@@ -158,13 +159,15 @@ object Serialization {
       })
 
   def transitivity[T: Serialization]: Law3[T] =
-    Law3("equiv(a, b) && equiv(b, c) => equiv(a, c)",
+    Law3(
+      "equiv(a, b) && equiv(b, c) => equiv(a, c)",
       { (t1: T, t2: T, t3: T) =>
         !(equiv(t1, t2) && equiv(t2, t3)) || equiv(t1, t3)
       })
 
   def allLaws[T: Serialization]: Iterable[Law[T]] =
-    List[Law[T]](roundTripLaw,
+    List[Law[T]](
+      roundTripLaw,
       serializationIsEquivalence,
       hashCodeImpliesEquality,
       reflexivity,

@@ -15,22 +15,22 @@ limitations under the License.
  */
 package com.twitter.scalding
 
-import cascading.flow.{Flow, FlowDef}
-import com.stripe.dagon.{Dag, Id, Rule}
+import cascading.flow.{ Flow, FlowDef }
+import com.stripe.dagon.{ Dag, Id, Rule }
 import com.twitter.algebird.monad.Trampoline
-import com.twitter.algebird.{Monad, Monoid, Semigroup}
+import com.twitter.algebird.{ Monad, Monoid, Semigroup }
 import com.twitter.scalding.cascading_interop.FlowListenerPromise
-import com.twitter.scalding.filecache.{CachedFile, DistributedCacheFile}
-import com.twitter.scalding.typed.functions.{ConsList, ReverseList}
+import com.twitter.scalding.filecache.{ CachedFile, DistributedCacheFile }
+import com.twitter.scalding.typed.functions.{ ConsList, ReverseList }
 import com.twitter.scalding.typed.cascading_backend.AsyncFlowDefRunner
 import com.twitter.scalding.cascading_interop.FlowListenerPromise.FlowStopException
-import com.stripe.dagon.{Memoize, RefPair}
+import com.stripe.dagon.{ Memoize, RefPair }
 import java.io.Serializable
 import java.util.UUID
 import scala.collection.mutable
 import scala.concurrent.duration.SECONDS
-import scala.concurrent.{Await, Future, Promise, blocking, duration, ExecutionContext => ConcurrentExecutionContext}
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.{ Await, Future, Promise, blocking, duration, ExecutionContext => ConcurrentExecutionContext }
+import scala.util.{ Failure, Success, Try }
 import scala.util.hashing.MurmurHash3
 
 /**
@@ -157,14 +157,15 @@ sealed trait Execution[+T] extends Serializable { self: Product =>
     // get on Trampoline
     val CFuture(fut, cancelHandler) = exec.runStats(confWithId, mode, ec)(cec).get
     // When the final future in complete we stop the submit thread
-    val result = fut.map(_._1).andThen { case t =>
-      if (t.isFailure) {
-        blocking {
-          // cancel running executions if this was a failure
-          Await.ready(cancelHandler.stop(), duration.Duration(30, SECONDS))
+    val result = fut.map(_._1).andThen {
+      case t =>
+        if (t.isFailure) {
+          blocking {
+            // cancel running executions if this was a failure
+            Await.ready(cancelHandler.stop(), duration.Duration(30, SECONDS))
+          }
         }
-      }
-      writer.finished()
+        writer.finished()
     }
     // wait till the end to start the thread in case the above throws
     writer.start()
@@ -178,7 +179,8 @@ sealed trait Execution[+T] extends Serializable { self: Product =>
    * completes, and a future of the result, counters and cache after the future
    * is complete
    */
-  protected def runStats(conf: Config,
+  protected def runStats(
+    conf: Config,
     mode: Mode,
     cache: EvalCache)(implicit cec: ConcurrentExecutionContext): Trampoline[CFuture[(T, Map[Long, ExecutionCounters])]]
 
@@ -195,7 +197,8 @@ sealed trait Execution[+T] extends Serializable { self: Product =>
    * always code smell. Very seldom should you need to wait on a future.
    */
   def waitFor(conf: Config, mode: Mode): Try[T] =
-    Try(Await.result(run(conf, mode)(ConcurrentExecutionContext.global),
+    Try(Await.result(
+      run(conf, mode)(ConcurrentExecutionContext.global),
       duration.Duration.Inf))
 
   /**
@@ -399,10 +402,9 @@ object Execution {
         .asInstanceOf[(Boolean, CFuture[(T, Counters)])]
 
     def getOrElseInsert[T](cfg: Config, ex: Execution[T],
-      res: => CFuture[(T, Counters)] ): CFuture[(T, Counters)] =
+      res: => CFuture[(T, Counters)]): CFuture[(T, Counters)] =
       getOrElseInsertWithFeedback(cfg, ex, res)._2
   }
-
 
   private[scalding] final case class FutureConst[T](get: ConcurrentExecutionContext => Future[T]) extends Execution[T] {
     protected def runStats(conf: Config, mode: Mode, cache: EvalCache)(implicit cec: ConcurrentExecutionContext) =
@@ -422,21 +424,23 @@ object Execution {
   }
   private[scalding] final case class FlatMapped[S, T](prev: Execution[S], fn: S => Execution[T]) extends Execution[T] {
     protected def runStats(conf: Config, mode: Mode, cache: EvalCache)(implicit cec: ConcurrentExecutionContext) =
-      Trampoline.call(prev.runStats(conf, mode, cache)).map { case CFuture(fut1, cancelHandler1) =>
-        lazy val uncachedCFut = for {
-          (s, st1) <- fut1
-          next0 = fn(s)
-          // next0 has not been optimized yet, we need to try
-          next = optimize(conf, next0)
-        } yield {
-          Trampoline.call(next.runStats(conf, mode, cache)).get.map { case (t, st2) =>
-            (t, st1 ++ st2)
+      Trampoline.call(prev.runStats(conf, mode, cache)).map {
+        case CFuture(fut1, cancelHandler1) =>
+          lazy val uncachedCFut = for {
+            (s, st1) <- fut1
+            next0 = fn(s)
+            // next0 has not been optimized yet, we need to try
+            next = optimize(conf, next0)
+          } yield {
+            Trampoline.call(next.runStats(conf, mode, cache)).get.map {
+              case (t, st2) =>
+                (t, st1 ++ st2)
+            }
           }
-        }
 
-        val futCancel = cache.getOrElseInsert(conf, this, CFuture.fromFuture(uncachedCFut))
+          val futCancel = cache.getOrElseInsert(conf, this, CFuture.fromFuture(uncachedCFut))
 
-        CFuture(futCancel.future, cancelHandler1.compose(futCancel.cancellationHandler))
+          CFuture(futCancel.future, cancelHandler1.compose(futCancel.cancellationHandler))
       }
   }
 
@@ -516,10 +520,11 @@ object Execution {
 
   private[scalding] final case class RecoverWith[T](prev: Execution[T], fn: PartialFunction[Throwable, Execution[T]]) extends Execution[T] {
     protected def runStats(conf: Config, mode: Mode, cache: EvalCache)(implicit cec: ConcurrentExecutionContext) =
-      Trampoline.call(prev.runStats(conf, mode, cache)).map { case CFuture(fut, cancelHandler) =>
-        lazy val uncachedFut = {
+      Trampoline.call(prev.runStats(conf, mode, cache)).map {
+        case CFuture(fut, cancelHandler) =>
+          lazy val uncachedFut = {
             fut
-              .map {v => (v, CancellationHandler.empty) } // map this to the right shape
+              .map { v => (v, CancellationHandler.empty) } // map this to the right shape
               .recoverWith {
                 case t: FlowStopException => // do not recover when the flow was stopped
                   Future.failed(t)
@@ -530,18 +535,18 @@ object Execution {
                     val CFuture(f, c) = ex.runStats(conf, mode, cache).get
                     f.map { v => (v, c) }
                   }
-                chainedFn(t)
+                  chainedFn(t)
               }
-        }
+          }
 
-        val recoveredFut = cache.getOrElseInsert(conf, this, CFuture(uncachedFut.map(_._1), CancellationHandler.fromFuture(uncachedFut.map(_._2))))
-        CFuture(recoveredFut.future, cancelHandler.compose(recoveredFut.cancellationHandler))
+          val recoveredFut = cache.getOrElseInsert(conf, this, CFuture(uncachedFut.map(_._1), CancellationHandler.fromFuture(uncachedFut.map(_._2))))
+          CFuture(recoveredFut.future, cancelHandler.compose(recoveredFut.cancellationHandler))
       }
   }
 
   /**
-    * Standard scala zip waits forever on the left side, even if the right side fails
-    */
+   * Standard scala zip waits forever on the left side, even if the right side fails
+   */
   def failFastZip[T, U](ft: Future[T], fu: Future[U])(implicit cec: ConcurrentExecutionContext): Future[(T, U)] = {
     type State = Either[(T, Promise[U]), (U, Promise[T])]
     val middleState = Promise[State]()
@@ -680,7 +685,8 @@ object Execution {
             val idA = optWriteId.original
             val origPipe = d1.evaluate(idA)
             val optPipe = d2.evaluate(idA)
-            OptimizedWrite(original = origPipe,
+            OptimizedWrite(
+              original = origPipe,
               toWrite = optWriteId.toWrite.replacePipe(optPipe))
           }
           go(optWrite) :: tail
@@ -718,16 +724,14 @@ object Execution {
      */
     private[Execution] def getForced[T](
       conf: Config,
-      initial: TypedPipe[T]
-      )(implicit cec: ConcurrentExecutionContext): Future[TypedPipe[T]]
+      initial: TypedPipe[T])(implicit cec: ConcurrentExecutionContext): Future[TypedPipe[T]]
 
     /**
      * This should only be called after a call to execute
      */
     private[Execution] def getIterable[T](
       conf: Config,
-      initial: TypedPipe[T]
-      )(implicit cec: ConcurrentExecutionContext): Future[Iterable[T]]
+      initial: TypedPipe[T])(implicit cec: ConcurrentExecutionContext): Future[Iterable[T]]
   }
 
   /**
@@ -757,7 +761,8 @@ object Execution {
      */
     override def map[U](mapFn: T => U): Execution[U] =
 
-      WriteExecution(head,
+      WriteExecution(
+        head,
         tail,
         ExecutionOptimizationRules.MapWrite.ComposeMap(result, mapFn))
 
@@ -820,7 +825,6 @@ object Execution {
       Trampoline(cache.getOrElseInsert(conf, this, uncachedFutureCancel))
     }
 
-
     /**
      * This is such an important optimization, that we apply it locally.
      * It is a bit ugly to have it here and in ExecutionOptimizationRules
@@ -843,7 +847,7 @@ object Execution {
      */
     override def zip[U](that: Execution[U]): Execution[(T, U)] =
       that match {
-        case w1@WriteExecution(_, _, _) =>
+        case w1 @ WriteExecution(_, _, _) =>
           ExecutionOptimizationRules.ZipWrite.mergeWrite(this, w1)
         case that => Zipped(this, that)
       }
@@ -928,7 +932,8 @@ object Execution {
     write(pipe, sink, ())
 
   private[scalding] def write[T, U](pipe: TypedPipe[T], sink: TypedSink[T], presentType: => U): Execution[U] =
-    WriteExecution(ToWrite.SimpleWrite(pipe, sink),
+    WriteExecution(
+      ToWrite.SimpleWrite(pipe, sink),
       Nil,
       { tup => Future(presentType)(tup._4) })
 
@@ -1004,7 +1009,8 @@ object Execution {
   /**
    * combine several executions and run them in parallel when .run is called
    */
-  def zip[A, B, C, D](ax: Execution[A],
+  def zip[A, B, C, D](
+    ax: Execution[A],
     bx: Execution[B],
     cx: Execution[C],
     dx: Execution[D]): Execution[(A, B, C, D)] =
@@ -1013,7 +1019,8 @@ object Execution {
   /**
    * combine several executions and run them in parallel when .run is called
    */
-  def zip[A, B, C, D, E](ax: Execution[A],
+  def zip[A, B, C, D, E](
+    ax: Execution[A],
     bx: Execution[B],
     cx: Execution[C],
     dx: Execution[D],

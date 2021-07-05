@@ -24,7 +24,6 @@ import cascading.stats.CascadingStats
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.mapred.JobConf
 
-
 object JobTest {
 
   @deprecated(message = "Use the non-reflection based JobTest apply methods", since = "0.16.1")
@@ -49,8 +48,7 @@ object JobTest {
   // We have to memoize to return the same buffer each time.
   private case class MemoizedSourceFn[T](
     fn: Source => Option[Iterable[T]],
-    setter: TupleSetter[T]
-  ) extends (Source => Option[mutable.Buffer[Tuple]]) {
+    setter: TupleSetter[T]) extends (Source => Option[mutable.Buffer[Tuple]]) {
     private val memo = mutable.Map[Source, Option[mutable.Buffer[Tuple]]]()
     private val lock = new Object()
 
