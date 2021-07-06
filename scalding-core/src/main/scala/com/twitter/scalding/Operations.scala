@@ -18,13 +18,14 @@ package com.twitter.scalding {
   import cascading.operation._
   import cascading.tuple._
   import cascading.flow._
-  import cascading.pipe.assembly.AggregateBy
+  import cascading.pipe.assembly.{ AggregateBy, AggregateByProps }
   import com.twitter.chill.MeatLocker
-  import scala.collection.JavaConverters._
 
-  import com.twitter.algebird.{ Semigroup, SummingWithHitsCache, AdaptiveCache }
+  import scala.collection.JavaConverters._
+  import com.twitter.algebird.{ AdaptiveCache, Semigroup, SummingWithHitsCache }
   import com.twitter.scalding.mathematics.Poisson
   import serialization.Externalizer
+
   import scala.util.Try
 
   trait ScaldingPrepare[C] extends Operation[C] {
@@ -285,7 +286,7 @@ package com.twitter.scalding {
 
   object MapsideCache {
     val DEFAULT_CACHE_SIZE = 100000
-    val SIZE_CONFIG_KEY = AggregateBy.AGGREGATE_BY_THRESHOLD
+    val SIZE_CONFIG_KEY = AggregateByProps.AGGREGATE_BY_CAPACITY
     val ADAPTIVE_CACHE_KEY = "scalding.mapsidecache.adaptive"
 
     private def getCacheSize(fp: FlowProcess[_]): Int =

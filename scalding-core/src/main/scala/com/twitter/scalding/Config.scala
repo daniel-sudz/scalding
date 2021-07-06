@@ -19,19 +19,17 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.mapred.JobConf
 import org.apache.hadoop.mapreduce.MRJobConfig
 import org.apache.hadoop.io.serializer.{ Serialization => HSerialization }
-import com.twitter.chill.{ ExternalizerCodec, ExternalizerInjection, Externalizer, KryoInstantiator }
-import com.twitter.chill.config.{ ScalaMapConfig, ConfiguredInstantiator }
+import com.twitter.chill.{ Externalizer, ExternalizerCodec, ExternalizerInjection, KryoInstantiator }
+import com.twitter.chill.config.{ ConfiguredInstantiator, ScalaMapConfig }
 import com.twitter.bijection.{ Base64String, Injection }
 import com.twitter.scalding.filecache.{ CachedFile, DistributedCacheFile, HadoopCachedFile }
-
-import cascading.pipe.assembly.AggregateBy
-import cascading.flow.{ FlowListener, FlowStepListener, FlowProps, FlowStepStrategy }
+import cascading.pipe.assembly.{ AggregateBy, AggregateByProps }
+import cascading.flow.{ FlowListener, FlowProps, FlowStepListener, FlowStepStrategy }
 import cascading.property.AppProps
 import cascading.tuple.collect.SpillableProps
 
 import java.security.MessageDigest
 import java.net.URI
-
 import scala.collection.JavaConverters._
 import scala.util.{ Failure, Success, Try }
 import com.twitter.scalding.serialization.RequireOrderedSerializationMode
@@ -140,10 +138,10 @@ abstract class Config extends Serializable {
    * the best results
    */
   def setMapSideAggregationThreshold(count: Int): Config =
-    this + (AggregateBy.AGGREGATE_BY_THRESHOLD -> count.toString)
+    this + (AggregateByProps.AGGREGATE_BY_CAPACITY -> count.toString)
 
   def getMapSideAggregationThreshold: Option[Int] =
-    get(AggregateBy.AGGREGATE_BY_THRESHOLD).map(_.toInt)
+    get(AggregateByProps.AGGREGATE_BY_CAPACITY).map(_.toInt)
 
   @deprecated("Use setRequireOrderedSerializationMode", "12/14/17")
   def setRequireOrderedSerialization(b: Boolean): Config =

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import org.apache.hadoop.io.BytesWritable;
-import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.RecordReader;
 
@@ -14,15 +14,17 @@ import cascading.scheme.SourceCall;
 import cascading.tuple.Fields;
 import cascading.tuple.Tuple;
 import cascading.tuple.TupleEntry;
+// import com.twitter.elephantbird.cascading3.scheme.CombinedWritableSequenceFile; // FIXME(jonshea)
+import com.twitter.elephantbird.cascading3.scheme.CombinedSequenceFile;
 
-import com.twitter.elephantbird.cascading2.scheme.CombinedWritableSequenceFile;
 
 /**
  *
  */
-public class KeyValueByteScheme extends CombinedWritableSequenceFile {
+public class KeyValueByteScheme extends CombinedSequenceFile {
   public KeyValueByteScheme(Fields fields) {
-    super(fields, BytesWritable.class, BytesWritable.class);
+    // FIXME(jonshea)
+    // super(fields, BytesWritable.class, BytesWritable.class);
   }
 
   public static byte[] getBytes(BytesWritable key) {
@@ -30,7 +32,7 @@ public class KeyValueByteScheme extends CombinedWritableSequenceFile {
   }
 
   @Override
-  public boolean source(FlowProcess<JobConf> flowProcess,
+  public boolean source(FlowProcess<? extends Configuration> flowProcess,
       SourceCall<Object[], RecordReader> sourceCall) throws IOException {
     BytesWritable key = (BytesWritable) sourceCall.getContext()[0];
     BytesWritable value = (BytesWritable) sourceCall.getContext()[1];
@@ -48,7 +50,7 @@ public class KeyValueByteScheme extends CombinedWritableSequenceFile {
   }
 
   @Override
-  public void sink(FlowProcess<JobConf> flowProcess, SinkCall<Void, OutputCollector> sinkCall)
+  public void sink(FlowProcess<? extends Configuration> flowProcess, SinkCall<Void, OutputCollector> sinkCall)
       throws IOException {
     TupleEntry tupleEntry = sinkCall.getOutgoingEntry();
 

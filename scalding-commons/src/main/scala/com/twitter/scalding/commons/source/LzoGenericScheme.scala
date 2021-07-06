@@ -20,7 +20,7 @@ import scala.reflect.ClassTag
 
 import com.twitter.bijection._
 import com.twitter.chill.Externalizer
-import com.twitter.elephantbird.cascading2.scheme.LzoBinaryScheme
+import com.twitter.elephantbird.cascading3.scheme.LzoBinaryScheme
 import com.twitter.elephantbird.mapreduce.input.combine.DelegateCombineFileInputFormat
 import com.twitter.elephantbird.mapreduce.io.{ BinaryConverter, GenericWritable }
 import com.twitter.elephantbird.mapreduce.input.{ BinaryConverterProvider, MultiInputFormat }
@@ -121,25 +121,28 @@ class LzoGenericScheme[M](@transient conv: BinaryConverter[M], clazz: Class[M]) 
     new GenericWritable(conv)
 
   override def sourceConfInit(
-    fp: FlowProcess[JobConf],
-    tap: Tap[JobConf, RecordReader[_, _], OutputCollector[_, _]],
-    conf: JobConf): Unit = {
+    fp: FlowProcess[_ <: Configuration],
+    tap: Tap[Configuration, RecordReader[_, _], OutputCollector[_, _]],
+    conf: Configuration): Unit = {
 
-    LzoGenericScheme.setConverter(conv, conf, SourceConfigBinaryConverterProvider.ProviderConfKey)
-    MultiInputFormat.setClassConf(clazz, conf)
-    MultiInputFormat.setGenericConverterClassConf(classOf[SourceConfigBinaryConverterProvider[_]], conf)
-
-    DelegateCombineFileInputFormat.setDelegateInputFormat(conf, classOf[MultiInputFormat[_]])
+    // FIXME(jonshea)
+    //    LzoGenericScheme.setConverter(conv, conf, SourceConfigBinaryConverterProvider.ProviderConfKey)
+    //    MultiInputFormat.setClassConf(clazz, conf)
+    //    MultiInputFormat.setGenericConverterClassConf(classOf[SourceConfigBinaryConverterProvider[_]], conf)
+    //
+    //    DelegateCombineFileInputFormat.setDelegateInputFormat(conf, classOf[MultiInputFormat[_]])
   }
 
   override def sinkConfInit(
-    fp: FlowProcess[JobConf],
-    tap: Tap[JobConf, RecordReader[_, _], OutputCollector[_, _]],
-    conf: JobConf): Unit = {
-    LzoGenericScheme.setConverter(conv, conf, SinkConfigBinaryConverterProvider.ProviderConfKey)
-    LzoGenericBlockOutputFormat.setClassConf(clazz, conf)
-    LzoGenericBlockOutputFormat.setGenericConverterClassConf(classOf[SinkConfigBinaryConverterProvider[_]], conf)
-    DeprecatedOutputFormatWrapper.setOutputFormat(classOf[LzoGenericBlockOutputFormat[_]], conf)
+    fp: FlowProcess[_ <: Configuration],
+    tap: Tap[Configuration, RecordReader[_, _], OutputCollector[_, _]],
+    conf: Configuration): Unit = {
+
+    // FIXME(jonshea)
+    //    LzoGenericScheme.setConverter(conv, conf, SinkConfigBinaryConverterProvider.ProviderConfKey)
+    //    LzoGenericBlockOutputFormat.setClassConf(clazz, conf)
+    //    LzoGenericBlockOutputFormat.setGenericConverterClassConf(classOf[SinkConfigBinaryConverterProvider[_]], conf)
+    //    DeprecatedOutputFormatWrapper.setOutputFormat(classOf[LzoGenericBlockOutputFormat[_]], conf)
   }
 }
 

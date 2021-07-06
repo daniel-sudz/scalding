@@ -3,7 +3,7 @@ package com.twitter.scalding.typed.memory_backend
 import scala.concurrent.{ Future, ExecutionContext => ConcurrentExecutionContext, Promise }
 import com.stripe.dagon.{ HMap, Rule }
 import com.twitter.scalding.typed._
-import com.twitter.scalding.{ CancellationHandler, CFuture }
+import com.twitter.scalding.{ CFuture }
 import com.twitter.scalding.{ Config, Execution, ExecutionCounters }
 import Execution.{ ToWrite, Writer }
 /**

@@ -15,9 +15,6 @@ limitations under the License.
 */
 package com.twitter.scalding
 
-import cascading.tap.hadoop.{ TemplateTap => HTemplateTap }
-import cascading.tap.local.FileTap
-import cascading.tap.local.{ TemplateTap => LTemplateTap }
 import cascading.tap.SinkMode
 import cascading.tap.Tap
 import cascading.tuple.Fields
@@ -25,15 +22,8 @@ import cascading.tuple.Fields
 /**
  * This is a base class for template based output sources
  */
+@deprecated("TemplateSource has been removed. Use PartitionSource instead", "0.19")
 abstract class TemplateSource extends SchemedSource with HfsTapProvider {
-
-  // The root path of the templated output.
-  def basePath: String
-  // The template as a java Formatter string. e.g. %s/%s for a two part template.
-  def template: String
-  // The fields to apply to the template.
-  def pathFields: Fields = Fields.ALL
-
   /**
    * Creates the template tap.
    *
@@ -42,27 +32,9 @@ abstract class TemplateSource extends SchemedSource with HfsTapProvider {
    *
    * @return A cascading TemplateTap.
    */
+  @deprecated("TemplateSource has been removed. Use PartitionSource instead", "0.19")
   override def createTap(readOrWrite: AccessMode)(implicit mode: Mode): Tap[_, _, _] = {
-    readOrWrite match {
-      case Read => throw new InvalidSourceException("Cannot use TemplateSource for input")
-      case Write => {
-        mode match {
-          case Local(_) => {
-            val localTap = new FileTap(localScheme, basePath, sinkMode)
-            new LTemplateTap(localTap, template, pathFields)
-          }
-          case hdfsMode @ Hdfs(_, _) => {
-            val hfsTap = createHfsTap(hdfsScheme, basePath, sinkMode)
-            new HTemplateTap(hfsTap, template, pathFields)
-          }
-          case hdfsTest @ HadoopTest(_, _) => {
-            val hfsTap = createHfsTap(hdfsScheme, hdfsTest.getWritePathFor(this), sinkMode)
-            new HTemplateTap(hfsTap, template, pathFields)
-          }
-          case _ => TestTapFactory(this, hdfsScheme).createTap(readOrWrite)
-        }
-      }
-    }
+    throw new NotImplementedError("")
   }
 
   /**
@@ -70,12 +42,8 @@ abstract class TemplateSource extends SchemedSource with HfsTapProvider {
    *
    * @param mode The mode of the job.
    */
+  @deprecated("TemplateSource has been removed. Use PartitionSource instead", "0.19")
   override def validateTaps(mode: Mode): Unit = {
-    if (basePath == null) {
-      throw new InvalidSourceException("basePath cannot be null for TemplateTap")
-    } else if (template == null) {
-      throw new InvalidSourceException("template cannot be null for TemplateTap")
-    }
   }
 }
 
@@ -89,10 +57,11 @@ abstract class TemplateSource extends SchemedSource with HfsTapProvider {
  * @param sinkMode How to handle conflicts with existing output.
  * @param fields The set of fields to apply to the output.
  */
+@deprecated("TemplatedTsv has been removed. Use PartitionTsv instead", "0.19")
 case class TemplatedTsv(
-  override val basePath: String,
-  override val template: String,
-  override val pathFields: Fields = Fields.ALL,
+  val basePath: String,
+  val template: String,
+  val pathFields: Fields = Fields.ALL,
   override val writeHeader: Boolean = false,
   override val sinkMode: SinkMode = SinkMode.REPLACE,
   override val fields: Fields = Fields.ALL)
@@ -107,13 +76,11 @@ case class TemplatedTsv(
  * @param pathFields The set of fields to apply to the path.
  * @param sinkMode How to handle conflicts with existing output.
  */
+@deprecated("TemplatedSequenceFile has been removed. Use PartitionSequenceFile instead", "0.19")
 case class TemplatedSequenceFile(
-  override val basePath: String,
-  override val template: String,
+  val basePath: String,
+  val template: String,
   val sequenceFields: Fields = Fields.ALL,
-  override val pathFields: Fields = Fields.ALL,
+  val pathFields: Fields = Fields.ALL,
   override val sinkMode: SinkMode = SinkMode.REPLACE)
-  extends TemplateSource with SequenceFileScheme {
-
-  override val fields = sequenceFields
-}
+  extends TemplateSource with SequenceFileScheme

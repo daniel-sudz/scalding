@@ -22,7 +22,7 @@ import scala.util.{ Failure, Try }
 
 object JobStats {
   def empty: JobStats = new JobStats(Map("counters" -> Map.empty))
-  def apply(stats: CascadingStats): JobStats = {
+  def apply[Child](stats: CascadingStats[Child]): JobStats = {
     val m: Map[String, Any] = statsMap(stats)
     new JobStats(
       stats match {
@@ -31,14 +31,14 @@ object JobStats {
       })
   }
 
-  private def counterMap(stats: CascadingStats): Map[String, Map[String, Long]] =
+  private def counterMap[Child](stats: CascadingStats[Child]): Map[String, Map[String, Long]] =
     stats.getCounterGroups.asScala.map { group =>
       (group, stats.getCountersFor(group).asScala.map { counter =>
         (counter, stats.getCounterValue(group, counter))
       }.toMap)
     }.toMap
 
-  private def statsMap(stats: CascadingStats): Map[String, Any] =
+  private def statsMap[Child](stats: CascadingStats[Child]): Map[String, Any] =
     Map(
       "counters" -> counterMap(stats),
       "duration" -> stats.getDuration,

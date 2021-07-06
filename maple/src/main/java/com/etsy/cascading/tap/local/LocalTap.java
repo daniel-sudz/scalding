@@ -6,6 +6,7 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.RecordReader;
 
@@ -47,18 +48,18 @@ public class LocalTap<SourceCtx, SinkCtx> extends Tap<Properties, RecordReader, 
     private Lfs lfs;
     //private Tap<JobConf, RecordReader, OutputCollector> lfs;
 
-    public LocalTap(String path, Scheme<JobConf, RecordReader, OutputCollector, SourceCtx, SinkCtx> scheme,
+    public LocalTap(String path, Scheme<Configuration, RecordReader, OutputCollector, SourceCtx, SinkCtx> scheme,
             SinkMode sinkMode) {
         super(new LocalScheme<SourceCtx, SinkCtx>(scheme), sinkMode);
         setup(path, scheme);
     }
 
-    public LocalTap(String path, Scheme<JobConf, RecordReader, OutputCollector, SourceCtx, SinkCtx> scheme) {
+    public LocalTap(String path, Scheme<Configuration, RecordReader, OutputCollector, SourceCtx, SinkCtx> scheme) {
         super(new LocalScheme<SourceCtx, SinkCtx>(scheme));
         setup(path, scheme);
     }
 
-    private void setup(String path, Scheme<JobConf, RecordReader, OutputCollector, SourceCtx, SinkCtx> scheme) {
+    private void setup(String path, Scheme<Configuration, RecordReader, OutputCollector, SourceCtx, SinkCtx> scheme) {
         this.path = path;
 
         /*
@@ -143,11 +144,11 @@ public class LocalTap<SourceCtx, SinkCtx> extends Tap<Properties, RecordReader, 
             Scheme<Properties, RecordReader, OutputCollector, SourceContext, SinkContext> {
         private static final long serialVersionUID = 5710119342340369543L;
 
-        private Scheme<JobConf, RecordReader, OutputCollector, SourceContext, SinkContext> scheme;
+        private Scheme<Configuration, RecordReader, OutputCollector, SourceContext, SinkContext> scheme;
         private JobConf defaults;
         private Lfs lfs;
 
-        public LocalScheme(Scheme<JobConf, RecordReader, OutputCollector, SourceContext, SinkContext> scheme) {
+        public LocalScheme(Scheme<Configuration, RecordReader, OutputCollector, SourceContext, SinkContext> scheme) {
             super(scheme.getSourceFields(), scheme.getSinkFields());
             this.scheme = scheme;
         }

@@ -20,7 +20,7 @@ val catsEffectVersion = "1.1.0"
 val catsVersion = "1.5.0"
 val chillVersion = "0.8.4"
 val dagonVersion = "0.3.1"
-val elephantbirdVersion = "4.15"
+val elephantbirdVersion = "4.17"
 val hadoopLzoVersion = "0.4.19"
 val hadoopVersion = "3.2.1"
 val hbaseVersion = "1.2.4"
@@ -28,7 +28,7 @@ val hravenVersion = "1.0.1"
 val jacksonVersion = "2.8.7"
 val json4SVersion = "3.5.0"
 val paradiseVersion = "2.1.0"
-val parquetVersion = "1.10.0"
+val parquetVersion = "1.12.0"
 val protobufVersion = "2.4.1"
 val scalameterVersion = "0.8.2"
 val scalaCheckVersion = "1.13.4"
@@ -372,7 +372,7 @@ lazy val scaldingCommons = module("commons").settings(
     "com.twitter" %% "bijection-core" % bijectionVersion,
     "com.twitter" %% "algebird-core" % algebirdVersion,
     "com.twitter" %% "chill" % chillVersion,
-    "com.twitter.elephantbird" % "elephant-bird-cascading2" % elephantbirdVersion,
+    "com.twitter.elephantbird" % "elephant-bird-cascading3" % elephantbirdVersion,
     "com.twitter.elephantbird" % "elephant-bird-core" % elephantbirdVersion,
     "com.hadoop.gplcompression" % "hadoop-lzo" % hadoopLzoVersion,
     // TODO: split this out into scalding-thrift
@@ -532,7 +532,7 @@ lazy val scaldingJson = module("json").settings(
     "org.apache.hadoop" % "hadoop-client" % hadoopVersion % "provided",
     "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion,
     "org.json4s" %% "json4s-native" % json4SVersion,
-    "com.twitter.elephantbird" % "elephant-bird-cascading2" % elephantbirdVersion % "provided"
+    "com.twitter.elephantbird" % "elephant-bird-cascading3" % elephantbirdVersion % "provided"
     )
 ).dependsOn(scaldingCore)
 

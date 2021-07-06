@@ -16,18 +16,16 @@ limitations under the License.
 package com.twitter.scalding
 
 import java.io.{ InputStream, OutputStream }
-import java.util.{ Map => JMap, Properties, UUID }
-
+import java.util.{ Properties, UUID, Map => JMap }
 import cascading.flow.FlowDef
 import cascading.flow.FlowProcess
 import cascading.scheme.{ NullScheme, Scheme }
 import cascading.tap.hadoop.Hfs
 import cascading.tap.SinkMode
-import cascading.tap.{ Tap, SourceTap, SinkTap }
-import cascading.tuple.{ Fields, Tuple => CTuple, TupleEntry, TupleEntryCollector, TupleEntryIterator }
-
+import cascading.tap.{ SinkTap, SourceTap, Tap }
+import cascading.tuple.{ Fields, TupleEntry, TupleEntryCollector, TupleEntryIterator, Tuple => CTuple }
 import cascading.pipe.Pipe
-
+import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.mapred.InputFormat
 import org.apache.hadoop.mapred.InputSplit
 import org.apache.hadoop.mapred.JobConf
@@ -53,7 +51,7 @@ class InvalidSourceException(message: String, cause: Throwable) extends RuntimeE
  *
  * hdfsPaths represents user-supplied list that was detected as not containing any valid paths.
  */
-class InvalidSourceTap(val e: Throwable) extends SourceTap[JobConf, RecordReader[_, _]] {
+class InvalidSourceTap[Conf <: Configuration](val e: Throwable) extends SourceTap[Conf, RecordReader[_, _]] {
 
   def this(hdfsPaths: Iterable[String]) =
     this(new InvalidSourceException(s"No good paths in $hdfsPaths"))
@@ -64,11 +62,11 @@ class InvalidSourceTap(val e: Throwable) extends SourceTap[JobConf, RecordReader
 
   override def hashCode: Int = randomId.hashCode
 
-  override def getModifiedTime(conf: JobConf): Long = 0L
+  override def getModifiedTime(conf: Conf): Long = 0L
 
-  override def openForRead(flow: FlowProcess[JobConf], input: RecordReader[_, _]): TupleEntryIterator = throw new InvalidSourceException("Encountered InvalidSourceTap!", e)
+  override def openForRead(flow: FlowProcess[_ <: Conf], input: RecordReader[_, _]): TupleEntryIterator = throw new InvalidSourceException("Encountered InvalidSourceTap!", e)
 
-  override def resourceExists(conf: JobConf): Boolean = false
+  override def resourceExists(conf: Conf): Boolean = false
 
   override def getScheme = new NullScheme()
 
@@ -81,8 +79,8 @@ class InvalidSourceTap(val e: Throwable) extends SourceTap[JobConf, RecordReader
   // 4. source.validateTaps (throws InvalidSourceException)
   // In the worst case if the flow plan is misconfigured,
   // openForRead on mappers should fail when using this tap.
-  override def sourceConfInit(flow: FlowProcess[JobConf], conf: JobConf): Unit = {
-    conf.setInputFormat(classOf[InvalidInputFormat])
+  override def sourceConfInit(flow: FlowProcess[_ <: Conf], conf: Conf): Unit = {
+    // conf.setInputFormat(classOf[InvalidInputFormat]) // FIXME(jonshea)
     super.sourceConfInit(flow, conf)
   }
 }
@@ -111,13 +109,13 @@ case object Write extends AccessMode
 
 object HadoopSchemeInstance {
   def apply(scheme: Scheme[_, _, _, _, _]) =
-    scheme.asInstanceOf[Scheme[JobConf, RecordReader[_, _], OutputCollector[_, _], _, _]]
+    scheme.asInstanceOf[Scheme[Configuration, RecordReader[_, _], OutputCollector[_, _], _, _]]
 }
 
 object CastHfsTap {
   // The scala compiler has problems with the generics in Cascading
-  def apply(tap: Hfs): Tap[JobConf, RecordReader[_, _], OutputCollector[_, _]] =
-    tap.asInstanceOf[Tap[JobConf, RecordReader[_, _], OutputCollector[_, _]]]
+  def apply(tap: Hfs): Tap[Configuration, RecordReader[_, _], OutputCollector[_, _]] =
+    tap.asInstanceOf[Tap[Configuration, RecordReader[_, _], OutputCollector[_, _]]]
 }
 
 /**
@@ -293,7 +291,7 @@ class NullTap[Config, Input, Output, SourceContext, SinkContext]
     SinkMode.UPDATE) {
 
   def getIdentifier = "nullTap"
-  def openForWrite(flowProcess: FlowProcess[Config], output: Output) =
+  def openForWrite(flowProcess: FlowProcess[_ <: Config], output: Output) =
     new TupleEntryCollector {
       override def add(te: TupleEntry): Unit = ()
       override def add(t: CTuple): Unit = ()

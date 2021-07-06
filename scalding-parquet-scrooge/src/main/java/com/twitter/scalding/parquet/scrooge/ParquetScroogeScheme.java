@@ -18,7 +18,7 @@
  */
 package com.twitter.scalding.parquet.scrooge;
 
-import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.RecordReader;
 
@@ -51,19 +51,22 @@ public class ParquetScroogeScheme<T extends ThriftStruct> extends ParquetValueSc
   }
 
   @Override
-  public void sinkConfInit(FlowProcess<JobConf> fp,
-      Tap<JobConf, RecordReader, OutputCollector> tap, JobConf jobConf) {
-    DeprecatedParquetOutputFormat.setAsOutputFormat(jobConf);
-    ParquetOutputFormat.setWriteSupportClass(jobConf, ScroogeWriteSupport.class);
-    ScroogeWriteSupport.setScroogeClass(jobConf, this.config.getKlass());
+  public void sinkConfInit(FlowProcess<? extends Configuration> fp,
+      Tap<Configuration, RecordReader, OutputCollector> tap, Configuration jobConf) {
+    // FIXME(jonshea)
+//    DeprecatedParquetOutputFormat.setAsOutputFormat(jobConf);
+//    ParquetOutputFormat.setWriteSupportClass(jobConf, ScroogeWriteSupport.class);
+//    ScroogeWriteSupport.setScroogeClass(jobConf, this.config.getKlass());
   }
 
   @Override
-  public void sourceConfInit(FlowProcess<JobConf> fp,
-      Tap<JobConf, RecordReader, OutputCollector> tap, JobConf jobConf) {
+  public void sourceConfInit(FlowProcess<? extends Configuration> fp,
+      Tap<Configuration, RecordReader, OutputCollector> tap, Configuration jobConf) {
     super.sourceConfInit(fp, tap, jobConf);
-    jobConf.setInputFormat(ScaldingDeprecatedParquetInputFormat.class);
-    ParquetInputFormat.setReadSupportClass(jobConf, ScroogeReadSupport.class);
-    ThriftReadSupport.setRecordConverterClass(jobConf, ScroogeRecordConverter.class);
+
+    // FIXME(jonshea)
+//    jobConf.setInputFormat(ScaldingDeprecatedParquetInputFormat.class);
+//    ParquetInputFormat.setReadSupportClass(jobConf, ScroogeReadSupport.class);
+//    ThriftReadSupport.setRecordConverterClass(jobConf, ScroogeRecordConverter.class);
   }
 }

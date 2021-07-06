@@ -5,7 +5,8 @@ import cascading.tap.Tap
 import com.twitter.scalding.parquet.ParquetValueScheme
 import com.twitter.scalding.parquet.thrift.Parquet346StructTypeRepairer
 import com.twitter.scrooge.{ ThriftStruct, ThriftStructCodec }
-import org.apache.hadoop.mapred.{ JobConf, OutputCollector, RecordReader }
+import org.apache.hadoop.mapred.{ OutputCollector, RecordReader }
+import org.apache.hadoop.conf.Configuration
 import org.apache.parquet.hadoop.thrift.ThriftReadSupport
 import org.apache.parquet.schema.MessageType
 import org.apache.parquet.thrift.struct.ThriftType.StructType
@@ -32,14 +33,15 @@ class Parquet346ScroogeScheme[T <: ThriftStruct](config: ParquetValueScheme.Conf
   extends ParquetScroogeScheme[T](config) {
 
   override def sourceConfInit(
-    fp: FlowProcess[JobConf],
-    tap: Tap[JobConf, RecordReader[_, _], OutputCollector[_, _]],
-    jobConf: JobConf): Unit = {
+    fp: FlowProcess[_ <: Configuration],
+    tap: Tap[Configuration, RecordReader[_, _], OutputCollector[_, _]],
+    jobConf: Configuration): Unit = {
 
     super.sourceConfInit(fp, tap, jobConf)
 
     // Use the fixed record converter instead of the one set in super
-    ThriftReadSupport.setRecordConverterClass(jobConf, classOf[Parquet346ScroogeRecordConverter[_]])
+    // FIXME(jonshea)
+    // ThriftReadSupport.setRecordConverterClass(jobConf, classOf[Parquet346ScroogeRecordConverter[_]])
   }
 }
 

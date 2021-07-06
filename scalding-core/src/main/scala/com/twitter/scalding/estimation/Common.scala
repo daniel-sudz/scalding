@@ -6,6 +6,7 @@ import cascading.tap.{ CompositeTap, Tap }
 import com.twitter.scalding.tap.GlobHfs
 import org.apache.hadoop.mapred.JobConf
 import org.slf4j.LoggerFactory
+
 import scala.collection.JavaConverters._
 
 object Common {
@@ -19,7 +20,7 @@ object Common {
     }
 
   def unrollTaps(step: FlowStep[JobConf]): Seq[Tap[_, _, _]] =
-    unrollTaps(step.getSources.asScala.toSeq)
+    unrollTaps(step.getFlow.getSourcesCollection.asScala.toSeq)
 
   def inputSizes(step: FlowStep[JobConf]): Seq[(String, Long)] = {
     val conf = step.getConfig
