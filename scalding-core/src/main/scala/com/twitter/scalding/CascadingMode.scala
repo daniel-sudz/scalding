@@ -93,7 +93,7 @@ trait HadoopMode extends CascadingMode {
       case None => asMap
     }
 
-    val flowConnectorClass = jobConf.get(Mode.CascadingFlowConnectorClassKey, Mode.DefaultHadoopFlowConnector)
+    val flowConnectorClass = jobConf.get(Mode.CascadingFlowConnectorClassKey, Mode.DefaultHadoop3Mr1FlowConnector)
 
     try {
       val clazz = Class.forName(flowConnectorClass)
@@ -114,7 +114,7 @@ trait HadoopMode extends CascadingMode {
     // copy over Config
     config.toMap.foreach{ case (k, v) => conf.set(k, v) }
 
-    val flowProcessClass = jobConf.get(Mode.CascadingFlowProcessClassKey, Mode.DefaultHadoopFlowProcess)
+    val flowProcessClass = jobConf.get(Mode.CascadingFlowProcessClassKey, Mode.DefaultHadoop3Mr1FlowProcess)
 
     val fp = try {
       val clazz = Class.forName(flowProcessClass)
