@@ -14,6 +14,7 @@ import cascading.scheme.SourceCall;
 import cascading.tap.Tap;
 import cascading.tuple.Tuple;
 import cascading.tuple.TupleEntry;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.parquet.filter2.predicate.FilterPredicate;
 import org.apache.parquet.hadoop.ParquetInputFormat;
 import org.apache.parquet.hadoop.mapred.Container;
@@ -29,7 +30,7 @@ import static org.apache.parquet.Preconditions.checkNotNull;
  * This is an abstract class; implementations are expected to set up their Input/Output Formats
  * correctly in the respective Init methods.
  */
-public abstract class ParquetValueScheme<T> extends Scheme<JobConf, RecordReader, OutputCollector, Object[], Object[]>{
+public abstract class ParquetValueScheme<T> extends Scheme<Configuration, RecordReader, OutputCollector, Object[], Object[]>{
 
   public static final class Config<T> implements Serializable {
     private final FilterPredicate filterPredicate;
@@ -102,32 +103,32 @@ public abstract class ParquetValueScheme<T> extends Scheme<JobConf, RecordReader
   }
 
   @Deprecated
-  private void setProjectionPushdown(JobConf jobConf) {
+  private void setProjectionPushdown(Configuration jobConf) {
     if (this.config.deprecatedProjectionString != null) {
-      ThriftReadSupport.setProjectionPushdown(jobConf, this.config.deprecatedProjectionString);
+      ThriftReadSupport.setProjectionPushdown((JobConf) jobConf, this.config.deprecatedProjectionString);
     }
   }
 
-  private void setStrictProjectionPushdown(JobConf jobConf) {
+  private void setStrictProjectionPushdown(Configuration jobConf) {
     if (this.config.strictProjectionString != null) {
       ThriftReadSupport.setStrictFieldProjectionFilter(jobConf, this.config.strictProjectionString);
     }
   }
 
-  private void setPredicatePushdown(JobConf jobConf) {
+  private void setPredicatePushdown(Configuration jobConf) {
     if (this.config.filterPredicate != null) {
       ParquetInputFormat.setFilterPredicate(jobConf, this.config.filterPredicate);
     }
   }
   @Override
-  public void sourceConfInit(FlowProcess<JobConf> jobConfFlowProcess, Tap<JobConf, RecordReader, OutputCollector> jobConfRecordReaderOutputCollectorTap, final JobConf jobConf) {
+  public void sourceConfInit(FlowProcess<? extends Configuration> jobConfFlowProcess, Tap<Configuration, RecordReader, OutputCollector> jobConfRecordReaderOutputCollectorTap, final Configuration jobConf) {
     setPredicatePushdown(jobConf);
     setProjectionPushdown(jobConf);
     setStrictProjectionPushdown(jobConf);
     setRecordClass(jobConf);
   }
 
-  private void setRecordClass(JobConf jobConf) {
+  private void setRecordClass(Configuration jobConf) {
     if (config.klass != null) {
       ParquetThriftInputFormat.setThriftClass(jobConf, config.klass);
     }
@@ -135,7 +136,7 @@ public abstract class ParquetValueScheme<T> extends Scheme<JobConf, RecordReader
 
   @SuppressWarnings("unchecked")
   @Override
-  public boolean source(FlowProcess<JobConf> fp, SourceCall<Object[], RecordReader> sc)
+  public boolean source(FlowProcess<? extends Configuration> fp, SourceCall<Object[], RecordReader> sc)
       throws IOException {
     Container<T> value = (Container<T>) sc.getInput().createValue();
     boolean hasNext = sc.getInput().next(null, value);
@@ -150,7 +151,7 @@ public abstract class ParquetValueScheme<T> extends Scheme<JobConf, RecordReader
 
   @SuppressWarnings("unchecked")
   @Override
-  public void sink(FlowProcess<JobConf> fp, SinkCall<Object[], OutputCollector> sc)
+  public void sink(FlowProcess<? extends Configuration> fp, SinkCall<Object[], OutputCollector> sc)
       throws IOException {
     TupleEntry tuple = sc.getOutgoingEntry();
 

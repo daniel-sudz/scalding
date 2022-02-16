@@ -7,20 +7,23 @@ import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.RecordReader;
+import org.apache.hadoop.mapred.SequenceFileInputFormat;
+import org.apache.hadoop.conf.Configuration;
 
 import cascading.flow.FlowProcess;
 import cascading.scheme.SinkCall;
 import cascading.scheme.SourceCall;
+import cascading.scheme.hadoop.WritableSequenceFile;
+import cascading.tap.Tap;
 import cascading.tuple.Fields;
 import cascading.tuple.Tuple;
 import cascading.tuple.TupleEntry;
 
-import com.twitter.elephantbird.cascading2.scheme.CombinedWritableSequenceFile;
 
 /**
  *
  */
-public class KeyValueByteScheme extends CombinedWritableSequenceFile {
+public class KeyValueByteScheme extends WritableSequenceFile {
   public KeyValueByteScheme(Fields fields) {
     super(fields, BytesWritable.class, BytesWritable.class);
   }
@@ -29,8 +32,17 @@ public class KeyValueByteScheme extends CombinedWritableSequenceFile {
     return Arrays.copyOfRange(key.getBytes(), 0, key.getLength());
   }
 
+
   @Override
-  public boolean source(FlowProcess<JobConf> flowProcess,
+  public void sourceConfInit(FlowProcess<? extends Configuration> flowProcess,
+                             Tap<Configuration, RecordReader, OutputCollector> tap, Configuration conf) {
+      super.sourceConfInit(flowProcess, tap, conf);
+      conf.setClass("mapred.input.format.class", SequenceFileInputFormat.class,
+            org.apache.hadoop.mapred.InputFormat.class);
+  }
+
+  @Override
+  public boolean source(FlowProcess<? extends Configuration> flowProcess,
       SourceCall<Object[], RecordReader> sourceCall) throws IOException {
     BytesWritable key = (BytesWritable) sourceCall.getContext()[0];
     BytesWritable value = (BytesWritable) sourceCall.getContext()[1];
@@ -48,7 +60,7 @@ public class KeyValueByteScheme extends CombinedWritableSequenceFile {
   }
 
   @Override
-  public void sink(FlowProcess<JobConf> flowProcess, SinkCall<Void, OutputCollector> sinkCall)
+  public void sink(FlowProcess<? extends Configuration> flowProcess, SinkCall<Void, OutputCollector> sinkCall)
       throws IOException {
     TupleEntry tupleEntry = sinkCall.getOutgoingEntry();
 

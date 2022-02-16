@@ -9,6 +9,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.RecordReader;
+import org.apache.hadoop.conf.Configuration;
 
 import cascading.scheme.Scheme;
 
@@ -17,16 +18,16 @@ import cascading.scheme.Scheme;
  * that will throw IOException where we actually can calculate size of source.
  */
 public class GlobHfs extends ScaldingHfs {
-  public GlobHfs(Scheme<JobConf, RecordReader, OutputCollector, ?, ?> scheme) {
+  public GlobHfs(Scheme<Configuration, RecordReader, OutputCollector, ?, ?> scheme) {
     super(scheme);
   }
 
-  public GlobHfs(Scheme<JobConf, RecordReader, OutputCollector, ?, ?> scheme, String stringPath) {
+  public GlobHfs(Scheme<Configuration, RecordReader, OutputCollector, ?, ?> scheme, String stringPath) {
     super(scheme, stringPath);
   }
 
   @Override
-  public long getSize(JobConf conf) throws IOException {
+  public long getSize(Configuration conf) throws IOException {
     return getSize(getPath(), conf);
   }
 
@@ -34,7 +35,7 @@ public class GlobHfs extends ScaldingHfs {
    * Get the total size of the file(s) specified by the Hfs, which may contain a glob
    * pattern in its path, so we must be ready to handle that case.
    */
-  public static long getSize(Path path, JobConf conf) throws IOException {
+  public static long getSize(Path path, Configuration conf) throws IOException {
     FileSystem fs = path.getFileSystem(conf);
     FileStatus[] statuses = fs.globStatus(path);
 

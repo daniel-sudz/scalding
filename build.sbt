@@ -17,21 +17,21 @@ val catsEffectVersion = "1.1.0"
 val catsVersion = "1.5.0"
 val chillVersion = "0.8.4"
 val dagonVersion = "0.3.1"
-val elephantbirdVersion = "4.15"
+val elephantbirdVersion = "4.17"
 val hadoopLzoVersion = "0.4.19"
-val hadoopVersion = "2.5.0"
+val hadoopVersion = "3.2.1"
 val hbaseVersion = "1.2.4"
 val hravenVersion = "1.0.1"
 val jacksonVersion = "2.8.7"
 val json4SVersion = "3.5.0"
 val paradiseVersion = "2.1.1"
-val parquetVersion = "1.10.0"
+val parquetVersion = "1.12.0"
 val protobufVersion = "2.4.1"
 val scalameterVersion = "0.8.2"
 val scalaCheckVersion = "1.13.4"
 val scalaTestVersion = "3.0.1"
 val scroogeVersion = "19.8.0"
-val sparkVersion = "2.4.0"
+val sparkVersion = "3.1.2"
 val beamVersion = "2.29.0"
 val slf4jVersion = "1.6.6"
 val thriftVersion = "0.9.3"
@@ -42,7 +42,7 @@ val printDependencyClasspath = taskKey[Unit]("Prints location of the dependencie
 
 val sharedSettings = Seq(
   organization := "com.twitter",
-  scalaVersion := "2.11.12",
+  scalaVersion := "2.12.14",
   crossScalaVersions := Seq(scalaVersion.value, "2.12.14"),
   javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
   doc / javacOptions := Seq("-source", "1.8"),
@@ -61,6 +61,7 @@ val sharedSettings = Seq(
     "com.novocode" % "junit-interface" % "0.10" % "test"
   ),
   resolvers ++= Seq(
+    Resolver.mavenLocal,
     Opts.resolver.sonatypeSnapshots,
     Opts.resolver.sonatypeReleases,
     "Concurrent Maven Repo".at("https://conjars.org/repo"),
@@ -260,7 +261,7 @@ lazy val scaldingArgs = module("args")
 lazy val scaldingDate = module("date")
 
 lazy val cascadingVersion =
-  System.getenv.asScala.getOrElse("SCALDING_CASCADING_VERSION", "2.6.1")
+  System.getenv.asScala.getOrElse("SCALDING_CASCADING_VERSION", "4.5.0-wip-dev")
 
 lazy val cascadingJDBCVersion =
   System.getenv.asScala.getOrElse("SCALDING_CASCADING_JDBC_VERSION", "2.6.0")
@@ -286,9 +287,10 @@ lazy val scaldingQuotation = module("quotation").settings(
 lazy val scaldingCore = module("core")
   .settings(
     libraryDependencies ++= Seq(
-      "cascading" % "cascading-core" % cascadingVersion,
-      "cascading" % "cascading-hadoop" % cascadingVersion,
-      "cascading" % "cascading-local" % cascadingVersion,
+      "net.wensel" % "cascading-core" % cascadingVersion,
+      "net.wensel" % "cascading-hadoop3-common" % cascadingVersion,
+      "net.wensel" % "cascading-hadoop3-mr1" % cascadingVersion,
+      "net.wensel" % "cascading-local" % cascadingVersion,
       "com.stripe" %% "dagon-core" % dagonVersion,
       "com.twitter" % "chill-hadoop" % chillVersion,
       "com.twitter" % "chill-java" % chillVersion,
@@ -353,7 +355,7 @@ lazy val scaldingCommons = module("commons")
       "com.twitter" %% "bijection-core" % bijectionVersion,
       "com.twitter" %% "algebird-core" % algebirdVersion,
       "com.twitter" %% "chill" % chillVersion,
-      "com.twitter.elephantbird" % "elephant-bird-cascading2" % elephantbirdVersion,
+      "com.twitter.elephantbird" % "elephant-bird-cascading3" % elephantbirdVersion,
       "com.twitter.elephantbird" % "elephant-bird-core" % elephantbirdVersion,
       "com.hadoop.gplcompression" % "hadoop-lzo" % hadoopLzoVersion,
       // TODO: split this out into scalding-thrift
@@ -531,7 +533,7 @@ lazy val scaldingJson = module("json")
       "org.apache.hadoop" % "hadoop-client" % hadoopVersion % "provided",
       "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion,
       "org.json4s" %% "json4s-native" % json4SVersion,
-      "com.twitter.elephantbird" % "elephant-bird-cascading2" % elephantbirdVersion % "provided"
+      "com.twitter.elephantbird" % "elephant-bird-cascading3" % elephantbirdVersion % "provided"
     )
   )
   .dependsOn(scaldingCore)
@@ -601,7 +603,8 @@ lazy val maple = Project(
       "org.apache.hbase" % "hbase-client" % hbaseVersion % "provided",
       "org.apache.hbase" % "hbase-common" % hbaseVersion % "provided",
       "org.apache.hbase" % "hbase-server" % hbaseVersion % "provided",
-      "cascading" % "cascading-hadoop" % cascadingVersion
+      "net.wensel" % "cascading-hadoop3-common" % cascadingVersion,
+      "net.wensel" % "cascading-hadoop3-mr1" % cascadingVersion
     )
   )
 )
@@ -618,7 +621,8 @@ lazy val executionTutorial = Project(
       "org.apache.hadoop" % "hadoop-client" % hadoopVersion,
       "org.slf4j" % "slf4j-api" % slf4jVersion,
       "org.slf4j" % "slf4j-log4j12" % slf4jVersion,
-      "cascading" % "cascading-hadoop" % cascadingVersion
+      "net.wensel" % "cascading-hadoop3-common" % cascadingVersion,
+      "net.wensel" % "cascading-hadoop3-mr1" % cascadingVersion
     )
   )
 ).dependsOn(scaldingCore)

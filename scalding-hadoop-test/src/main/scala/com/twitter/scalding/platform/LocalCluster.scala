@@ -136,8 +136,6 @@ class LocalCluster(mutex: Boolean = true) {
       classOf[com.twitter.chill.algebird.AveragedValueSerializer],
       classOf[com.twitter.algebird.Semigroup[_]],
       classOf[com.twitter.chill.KryoInstantiator],
-      classOf[org.jgrapht.ext.EdgeNameProvider[_]],
-      classOf[org.apache.commons.lang.StringUtils],
       classOf[cascading.scheme.local.TextDelimited],
       classOf[org.apache.commons.logging.LogFactory],
       classOf[org.apache.commons.codec.binary.Base64],
@@ -146,7 +144,6 @@ class LocalCluster(mutex: Boolean = true) {
       classOf[com.esotericsoftware.kryo.KryoSerializable],
       classOf[com.twitter.chill.hadoop.KryoSerialization],
       classOf[com.twitter.maple.tap.TupleMemoryInputFormat],
-      classOf[org.apache.commons.configuration.Configuration]
     ).foreach(addClassSourceToClassPath(_))
     this
   }

@@ -24,7 +24,7 @@ import com.twitter.chill.config.{ConfiguredInstantiator, ScalaMapConfig}
 import com.twitter.bijection.{Base64String, Injection}
 import com.twitter.scalding.filecache.{CachedFile, DistributedCacheFile, HadoopCachedFile}
 
-import cascading.pipe.assembly.AggregateBy
+import cascading.pipe.assembly.AggregateByProps
 import cascading.flow.{FlowListener, FlowProps, FlowStepListener, FlowStepStrategy}
 import cascading.property.AppProps
 import cascading.tuple.collect.SpillableProps
@@ -136,10 +136,10 @@ abstract class Config extends Serializable {
    * the best results
    */
   def setMapSideAggregationThreshold(count: Int): Config =
-    this + (AggregateBy.AGGREGATE_BY_THRESHOLD -> count.toString)
+    this + (AggregateByProps.AGGREGATE_BY_CAPACITY -> count.toString)
 
   def getMapSideAggregationThreshold: Option[Int] =
-    get(AggregateBy.AGGREGATE_BY_THRESHOLD).map(_.toInt)
+    get(AggregateByProps.AGGREGATE_BY_CAPACITY).map(_.toInt)
 
   @deprecated("Use setRequireOrderedSerializationMode", "12/14/17")
   def setRequireOrderedSerialization(b: Boolean): Config =

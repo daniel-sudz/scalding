@@ -5,6 +5,7 @@ import com.twitter.scalding.parquet.ParquetValueScheme
 import cascading.flow.FlowProcess
 import cascading.tap.Tap
 import org.apache.hadoop.mapred.{JobConf, OutputCollector, RecordReader}
+import org.apache.hadoop.conf.Configuration
 import org.apache.parquet.hadoop.thrift.ThriftReadSupport
 import org.apache.parquet.io.ParquetDecodingException
 import org.apache.parquet.schema.MessageType
@@ -34,9 +35,9 @@ class Parquet346TBaseScheme[T <: TBase[_, _]](config: ParquetValueScheme.Config[
     extends ParquetTBaseScheme[T](config) {
 
   override def sourceConfInit(
-      fp: FlowProcess[JobConf],
-      tap: Tap[JobConf, RecordReader[_, _], OutputCollector[_, _]],
-      jobConf: JobConf
+      fp: FlowProcess[_ <: Configuration],
+      tap: Tap[Configuration, RecordReader[_, _], OutputCollector[_, _]],
+      jobConf: Configuration
   ): Unit = {
 
     super.sourceConfInit(fp, tap, jobConf)

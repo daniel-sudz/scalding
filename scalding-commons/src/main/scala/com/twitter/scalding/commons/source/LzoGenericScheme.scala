@@ -20,7 +20,7 @@ import scala.reflect.ClassTag
 
 import com.twitter.bijection._
 import com.twitter.chill.Externalizer
-import com.twitter.elephantbird.cascading2.scheme.LzoBinaryScheme
+import com.twitter.elephantbird.cascading3.scheme.LzoBinaryScheme
 import com.twitter.elephantbird.mapreduce.input.combine.DelegateCombineFileInputFormat
 import com.twitter.elephantbird.mapreduce.io.{BinaryConverter, GenericWritable}
 import com.twitter.elephantbird.mapreduce.input.{BinaryConverterProvider, MultiInputFormat}
@@ -101,7 +101,7 @@ object LzoGenericScheme {
    */
   def setConverter[M](
       conv: BinaryConverter[M],
-      conf: JobConf,
+      conf: Configuration,
       confKey: String,
       overrideConf: Boolean = false
   ): Unit =
@@ -129,9 +129,9 @@ class LzoGenericScheme[M](@transient conv: BinaryConverter[M], clazz: Class[M])
     new GenericWritable(conv)
 
   override def sourceConfInit(
-      fp: FlowProcess[JobConf],
-      tap: Tap[JobConf, RecordReader[_, _], OutputCollector[_, _]],
-      conf: JobConf
+      fp: FlowProcess[_ <: Configuration],
+      tap: Tap[Configuration, RecordReader[_, _], OutputCollector[_, _]],
+      conf: Configuration
   ): Unit = {
 
     LzoGenericScheme.setConverter(conv, conf, SourceConfigBinaryConverterProvider.ProviderConfKey)
@@ -142,9 +142,9 @@ class LzoGenericScheme[M](@transient conv: BinaryConverter[M], clazz: Class[M])
   }
 
   override def sinkConfInit(
-      fp: FlowProcess[JobConf],
-      tap: Tap[JobConf, RecordReader[_, _], OutputCollector[_, _]],
-      conf: JobConf
+      fp: FlowProcess[_ <: Configuration],
+      tap: Tap[Configuration, RecordReader[_, _], OutputCollector[_, _]],
+      conf: Configuration
   ): Unit = {
     LzoGenericScheme.setConverter(conv, conf, SinkConfigBinaryConverterProvider.ProviderConfKey)
     LzoGenericBlockOutputFormat.setClassConf(clazz, conf)

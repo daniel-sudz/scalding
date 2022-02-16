@@ -33,25 +33,26 @@ import cascading.tap.hadoop.util.MeasuredRecordReader;
 import cascading.util.CloseableIterator;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordReader;
+import org.apache.hadoop.conf.Configuration;
 
 /**
  *
  */
-public class HadoopTupleEntrySchemeIterator extends TupleEntrySchemeIterator<JobConf, RecordReader>
+public class HadoopTupleEntrySchemeIterator extends TupleEntrySchemeIterator<Configuration, RecordReader>
 {
   private MeasuredRecordReader measuredRecordReader;
 
-  public HadoopTupleEntrySchemeIterator( FlowProcess<JobConf> flowProcess, Tap parentTap, RecordReader recordReader ) throws IOException
+  public HadoopTupleEntrySchemeIterator( FlowProcess<Configuration> flowProcess, Tap parentTap, RecordReader recordReader ) throws IOException
   {
     this( flowProcess, parentTap.getScheme(), makeIterator( flowProcess, parentTap, recordReader ) );
   }
 
-  public HadoopTupleEntrySchemeIterator( FlowProcess<JobConf> flowProcess, Scheme scheme, CloseableIterator<RecordReader> closeableIterator )
+  public HadoopTupleEntrySchemeIterator( FlowProcess<Configuration> flowProcess, Scheme scheme, CloseableIterator<RecordReader> closeableIterator )
   {
     super( flowProcess, scheme, closeableIterator, flowProcess.getStringProperty( MultiInputSplit.CASCADING_SOURCE_PATH ) );
   }
 
-  private static CloseableIterator<RecordReader> makeIterator( FlowProcess<JobConf> flowProcess, Tap parentTap, RecordReader recordReader ) throws IOException
+  private static CloseableIterator<RecordReader> makeIterator( FlowProcess<Configuration> flowProcess, Tap parentTap, RecordReader recordReader ) throws IOException
   {
     if( recordReader != null )
       return new RecordReaderIterator( recordReader );

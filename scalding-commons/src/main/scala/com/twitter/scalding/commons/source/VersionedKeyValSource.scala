@@ -33,6 +33,7 @@ import com.twitter.scalding.source.{CheckedInversion, MaxFailuresCheck}
 import com.twitter.scalding.typed.KeyedListLike
 import com.twitter.scalding.typed.TypedSink
 import org.apache.hadoop.mapred.JobConf
+import org.apache.hadoop.conf.Configuration
 import scala.collection.JavaConverters._
 
 /**
@@ -113,7 +114,7 @@ class VersionedKeyValSource[K, V](
     sourceVersion.foreach { version =>
       mode match {
         case hadoopMode: HadoopMode => {
-          val store = source.getStore(new JobConf(hadoopMode.jobConf))
+          val store = source.getStore(new Configuration(hadoopMode.jobConf))
 
           if (!store.hasVersion(version)) {
             throw new InvalidSourceException(
@@ -140,7 +141,7 @@ class VersionedKeyValSource[K, V](
         buffers(this).map(!_.isEmpty).getOrElse(false)
       }
       case _ => {
-        val conf = new JobConf(mode.asInstanceOf[HadoopMode].jobConf)
+        val conf = new Configuration(mode.asInstanceOf[HadoopMode].jobConf)
         source.resourceExists(conf)
       }
     }
@@ -155,7 +156,7 @@ class VersionedKeyValSource[K, V](
           buffers(this).map(!_.isEmpty).getOrElse(false)
 
         case m: HadoopMode =>
-          val conf = new JobConf(m.jobConf)
+          val conf = new Configuration(m.jobConf)
           val store = sink.getStore(conf)
           store.hasVersion(version)
         case _ => sys.error(s"Unknown mode $mode")

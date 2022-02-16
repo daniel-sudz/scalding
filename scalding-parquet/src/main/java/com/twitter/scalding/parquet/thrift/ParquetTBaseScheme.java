@@ -10,6 +10,7 @@ import org.apache.thrift.TBase;
 
 import cascading.flow.FlowProcess;
 import cascading.tap.Tap;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.parquet.filter2.predicate.FilterPredicate;
 import org.apache.parquet.hadoop.ParquetInputFormat;
 import org.apache.parquet.hadoop.mapred.DeprecatedParquetOutputFormat;
@@ -41,24 +42,24 @@ public class ParquetTBaseScheme<T extends TBase<?,?>> extends ParquetValueScheme
   }
 
   @Override
-  public void sourceConfInit(FlowProcess<JobConf> fp,
-      Tap<JobConf, RecordReader, OutputCollector> tap, JobConf jobConf) {
+  public void sourceConfInit(FlowProcess<? extends Configuration> fp,
+      Tap<Configuration, RecordReader, OutputCollector> tap, Configuration jobConf) {
     super.sourceConfInit(fp, tap, jobConf);
-    jobConf.setInputFormat(ScaldingDeprecatedParquetInputFormat.class);
-    ParquetInputFormat.setReadSupportClass(jobConf, ThriftReadSupport.class);
-    ThriftReadSupport.setRecordConverterClass(jobConf, TBaseRecordConverter.class);
+    ((JobConf) jobConf).setInputFormat(ScaldingDeprecatedParquetInputFormat.class);
+    ParquetInputFormat.setReadSupportClass((JobConf) jobConf, ThriftReadSupport.class);
+    ThriftReadSupport.setRecordConverterClass((JobConf) jobConf, TBaseRecordConverter.class);
   }
 
   @Override
-  public void sinkConfInit(FlowProcess<JobConf> fp,
-      Tap<JobConf, RecordReader, OutputCollector> tap, JobConf jobConf) {
+  public void sinkConfInit(FlowProcess<? extends Configuration> fp,
+      Tap<Configuration, RecordReader, OutputCollector> tap, Configuration jobConf) {
 
     if (this.config.getKlass() == null) {
       throw new IllegalArgumentException("To use ParquetTBaseScheme as a sink, you must specify a thrift class in the constructor");
     }
 
-    DeprecatedParquetOutputFormat.setAsOutputFormat(jobConf);
-    DeprecatedParquetOutputFormat.setWriteSupportClass(jobConf, TBaseWriteSupport.class);
-    TBaseWriteSupport.<T>setThriftClass(jobConf, this.config.getKlass());
+    DeprecatedParquetOutputFormat.setAsOutputFormat((JobConf) jobConf);
+    DeprecatedParquetOutputFormat.setWriteSupportClass((JobConf) jobConf, TBaseWriteSupport.class);
+    TBaseWriteSupport.<T>setThriftClass((JobConf) jobConf, this.config.getKlass());
   }
 }
