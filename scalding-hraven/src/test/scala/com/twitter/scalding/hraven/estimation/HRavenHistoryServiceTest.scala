@@ -83,7 +83,7 @@ object TestFlowStrategyInfo {
     val mockedInfo = mock(classOf[FlowStrategyInfo])
 
     when(mockedStep.getConfig).thenReturn(mockedConf)
-    when(mockedStep.getStepNum).thenReturn(stepNum)
+    when(mockedStep.getOrdinal).thenReturn(stepNum)
     when(mockedInfo.step).thenReturn(mockedStep)
 
     mockedInfo

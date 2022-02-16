@@ -4,6 +4,7 @@ import com.twitter.scalding.parquet.thrift_java.test.Name;
 
 import cascading.flow.Flow;
 import cascading.flow.FlowProcess;
+import cascading.flow.FlowConnector;
 import cascading.flow.hadoop3.Hadoop3MRFlowConnector;
 import cascading.operation.BaseOperation;
 import cascading.operation.Function;
@@ -61,7 +62,7 @@ public class TestParquetTBaseScheme {
 
     Pipe assembly = new Pipe( "namecp" );
     assembly = new Each(assembly, new PackThriftFunction());
-    HadoopFlowConnector hadoopFlowConnector = new Hadoop3MRFlowConnector();
+    FlowConnector hadoopFlowConnector = new Hadoop3MRFlowConnector();
     Flow flow  = hadoopFlowConnector.connect("namecp", source, sink, assembly);
 
     flow.complete();
@@ -159,7 +160,7 @@ public class TestParquetTBaseScheme {
       TupleEntry arguments = functionCall.getArguments();
       Tuple result = new Tuple();
 
-      Name name = (Name) arguments.get(0);
+      Name name = (Name) arguments.getObject(0);
       result.add(name.getFirst_name());
       result.add(name.getLast_name());
       functionCall.getOutputCollector().add(result);
