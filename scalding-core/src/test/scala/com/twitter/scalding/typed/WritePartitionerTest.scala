@@ -17,7 +17,8 @@ class WritePartitionerTest extends FunSuite with PropertyChecks {
     materializations: List[WritePartitioner.PairK[TypedPipe, TypedSource, _]]) {
 
     def ++(that: WriteState): WriteState =
-      WriteState(writes ::: that.writes,
+      WriteState(
+        writes ::: that.writes,
         materializations ::: that.materializations)
   }
 
@@ -103,9 +104,16 @@ class WritePartitionerTest extends FunSuite with PropertyChecks {
     {
       import TypedPipe._
 
-      val pipe = WithDescriptionTypedPipe(Mapped(ReduceStepPipe(ValueSortedReduce[Int, Int, Int](implicitly[Ordering[Int]],
-        WithDescriptionTypedPipe(WithDescriptionTypedPipe(Mapped(WithDescriptionTypedPipe(MergedTypedPipe(
-          WithDescriptionTypedPipe(Fork(WithDescriptionTypedPipe(TrappedPipe(SourcePipe(TypedText.tsv[Int]("oyg")),
+      val pipe = WithDescriptionTypedPipe(Mapped(
+        ReduceStepPipe(ValueSortedReduce[Int, Int, Int](
+        implicitly[Ordering[Int]],
+        WithDescriptionTypedPipe(
+          WithDescriptionTypedPipe(
+          Mapped(WithDescriptionTypedPipe(
+          MergedTypedPipe(
+          WithDescriptionTypedPipe(
+            Fork(WithDescriptionTypedPipe(TrappedPipe(
+            SourcePipe(TypedText.tsv[Int]("oyg")),
             TypedText.tsv[Int]("a3QasphTfqhd1namjb"),
             TupleConverter.Single(implicitly[TupleGetter[Int]])), List(("org.scalacheck.Gen$R $class.map(Gen.scala:237)", true)))),
             List(("org.scalacheck.Gen$R$class.map(Gen.scala:237)", true))),
@@ -122,17 +130,28 @@ class WritePartitionerTest extends FunSuite with PropertyChecks {
     {
       import TypedPipe._
 
-      val pipe = WithDescriptionTypedPipe(ForceToDisk(WithDescriptionTypedPipe(Mapped(
-        ReduceStepPipe(ValueSortedReduce[Int, Int, Int](implicitly[Ordering[Int]],
-          WithDescriptionTypedPipe(WithDescriptionTypedPipe(
-            Mapped(WithDescriptionTypedPipe(MergedTypedPipe(WithDescriptionTypedPipe(
-              Mapped(WithDescriptionTypedPipe(CrossValue(
+      val pipe = WithDescriptionTypedPipe(
+        ForceToDisk(WithDescriptionTypedPipe(
+        Mapped(
+        ReduceStepPipe(ValueSortedReduce[Int, Int, Int](
+          implicitly[Ordering[Int]],
+          WithDescriptionTypedPipe(
+            WithDescriptionTypedPipe(
+            Mapped(WithDescriptionTypedPipe(
+              MergedTypedPipe(
+              WithDescriptionTypedPipe(
+              Mapped(WithDescriptionTypedPipe(
+                CrossValue(
                 SourcePipe(TypedText.tsv[Int]("yumwd")), LiteralValue(2)),
                 List(("org.scalacheck.Gen$R$class.map(Gen.scala:237)", true))), null /*<function1>*/ ),
               List(("org.scalacheck.Gen$R$class.map(Gen.scala:237)", true))),
-              WithDescriptionTypedPipe(Mapped(WithDescriptionTypedPipe(FilterKeys(
-                WithDescriptionTypedPipe(SumByLocalKeys(
-                  WithDescriptionTypedPipe(FlatMapped(
+              WithDescriptionTypedPipe(
+                Mapped(WithDescriptionTypedPipe(
+                FilterKeys(
+                WithDescriptionTypedPipe(
+                  SumByLocalKeys(
+                  WithDescriptionTypedPipe(
+                    FlatMapped(
                     IterablePipe(List(943704575)), null /*<function1>*/ ),
                     List(("org.scalacheck.Gen$R$class.map(Gen.scala:237)", true))),
                   implicitly[Monoid[Int]]),
@@ -154,11 +173,24 @@ class WritePartitionerTest extends FunSuite with PropertyChecks {
       import TypedPipe._
 
       val pipe = WithDescriptionTypedPipe(
-        Fork(WithDescriptionTypedPipe(Mapped(WithDescriptionTypedPipe(CrossValue(
-          WithDescriptionTypedPipe(TrappedPipe(WithDescriptionTypedPipe(ForceToDisk(WithDescriptionTypedPipe(
-            Mapped(ReduceStepPipe(ValueSortedReduce[Int, Int, Int](implicitly[Ordering[Int]],
-              WithDescriptionTypedPipe(WithDescriptionTypedPipe(FilterKeys(WithDescriptionTypedPipe(FlatMapValues(
-                WithDescriptionTypedPipe(Mapped(IterablePipe(List(1533743286, 0, -1, 0, 1637692751)),
+        Fork(WithDescriptionTypedPipe(
+          Mapped(
+          WithDescriptionTypedPipe(
+          CrossValue(
+          WithDescriptionTypedPipe(
+            TrappedPipe(
+            WithDescriptionTypedPipe(
+            ForceToDisk(WithDescriptionTypedPipe(
+            Mapped(
+              ReduceStepPipe(ValueSortedReduce[Int, Int, Int](
+              implicitly[Ordering[Int]],
+              WithDescriptionTypedPipe(
+                WithDescriptionTypedPipe(
+                FilterKeys(WithDescriptionTypedPipe(
+                FlatMapValues(
+                WithDescriptionTypedPipe(
+                  Mapped(
+                  IterablePipe(List(1533743286, 0, -1, 0, 1637692751)),
                   null /*<function1>*/ ),
                   List(("org.scalacheck.Gen$R$class.map(Gen.scala:237)", true))), null /*<function1>*/ ),
                 List(("org.scalacheck.Gen$R$class.map(Gen.scala:237)", true))), null /*<function1>*/ ),

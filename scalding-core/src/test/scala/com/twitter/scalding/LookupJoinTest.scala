@@ -41,7 +41,8 @@ class LookupJoinerJob(args: Args) extends Job(args) {
   val in0 = TypedTsv[(Int, Int, Int)]("input0")
   val in1 = TypedTsv[(Int, Int, Int)]("input1")
 
-  LookupJoin(TypedPipe.from(in0).map { case (t, k, v) => (t, (k, v)) },
+  LookupJoin(
+    TypedPipe.from(in0).map { case (t, k, v) => (t, (k, v)) },
     TypedPipe.from(in1).map { case (t, k, v) => (t, (k, v)) })
     .map {
       case (t, (k, (v, opt))) =>
@@ -49,7 +50,8 @@ class LookupJoinerJob(args: Args) extends Job(args) {
     }
     .write(TypedTsv[(String, String, String, String)]("output"))
 
-  LookupJoin.rightSumming(TypedPipe.from(in0).map { case (t, k, v) => (t, (k, v)) },
+  LookupJoin.rightSumming(
+    TypedPipe.from(in0).map { case (t, k, v) => (t, (k, v)) },
     TypedPipe.from(in1).map { case (t, k, v) => (t, (k, v)) })
     .map {
       case (t, (k, (v, opt))) =>
@@ -140,7 +142,8 @@ class WindowLookupJoinerJob(args: Args) extends Job(args) {
   def gate(left: Int, right: Int) =
     (left.toLong - right.toLong) < window
 
-  LookupJoin.withWindow(TypedPipe.from(in0).map { case (t, k, v) => (t, (k, v)) },
+  LookupJoin.withWindow(
+    TypedPipe.from(in0).map { case (t, k, v) => (t, (k, v)) },
     TypedPipe.from(in1).map { case (t, k, v) => (t, (k, v)) })(gate _)
     .map {
       case (t, (k, (v, opt))) =>

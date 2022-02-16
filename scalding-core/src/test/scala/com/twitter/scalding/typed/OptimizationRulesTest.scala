@@ -82,7 +82,7 @@ object TypedPipeGen {
         single <- tpGen(srcGen)
         fn <- Arbitrary.arbitrary[Int => List[(Int, Int)]]
       } yield single.flatMap(fn.andThen(_.take(4))) // take to not get too big
-      )
+    )
 
     val two = Gen.oneOf(
       for {
@@ -319,10 +319,11 @@ class OptimizationRulesTest extends FunSuite with PropertyChecks {
     implicit val generatorDrivenConfig: PropertyCheckConfiguration = PropertyCheckConfiguration(minSuccessful = 200)
 
     val possiblyIncreasesSteps: Set[Rule[TypedPipe]] =
-      Set(OptimizationRules.AddExplicitForks, // explicit forks can cause cascading to add steps instead of recomputing values
+      Set(
+        OptimizationRules.AddExplicitForks, // explicit forks can cause cascading to add steps instead of recomputing values
         OptimizationRules.ForceToDiskBeforeHashJoin, // adding a forceToDisk can increase the number of steps
         OptimizationRules.HashToShuffleCoGroup // obviously changing a hashjoin to a cogroup can increase steps
-        )
+      )
 
     val gen = genRuleFrom(allRules.filterNot(possiblyIncreasesSteps))
 

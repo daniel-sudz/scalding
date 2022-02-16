@@ -55,7 +55,8 @@ class SparkBackendTests extends FunSuite with BeforeAndAfter {
   }
 
   def sparkMatchesMemory[A: Ordering](t: TypedPipe[A]) =
-    sparkMatchesIterable(t.toIterableExecution,
+    sparkMatchesIterable(
+      t.toIterableExecution,
       t.toIterableExecution.waitFor(Config.empty, MemoryMode.empty).get)
 
   test("some basic map-only operations work") {
@@ -134,7 +135,8 @@ class SparkBackendTests extends FunSuite with BeforeAndAfter {
   }
 
   def tmpPath(suffix: String): String =
-    Paths.get(System.getProperty("java.io.tmpdir"),
+    Paths.get(
+      System.getProperty("java.io.tmpdir"),
       "scalding",
       "spark_backend",
       suffix).toString

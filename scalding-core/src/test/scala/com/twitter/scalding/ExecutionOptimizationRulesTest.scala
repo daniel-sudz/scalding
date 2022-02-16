@@ -4,13 +4,13 @@ import cascading.flow.FlowDef
 import cascading.pipe.Pipe
 import cascading.scheme.NullScheme
 import cascading.tap.Tap
-import cascading.tuple.{Fields, Tuple}
-import com.stripe.dagon.{Dag, Rule}
+import cascading.tuple.{ Fields, Tuple }
+import com.stripe.dagon.{ Dag, Rule }
 import com.twitter.maple.tap.MemorySourceTap
 import com.twitter.scalding.typed.TypedPipeGen
-import java.io.{InputStream, OutputStream}
+import java.io.{ InputStream, OutputStream }
 import java.util.UUID
-import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.{ Arbitrary, Gen }
 import org.scalatest.FunSuite
 import org.scalatest.prop.PropertyChecks
 import scala.collection.JavaConverters._
@@ -72,8 +72,7 @@ class ExecutionOptimizationRulesTest extends FunSuite with PropertyChecks {
     exec.flatMap { pipe =>
       Gen.frequency(
         (1, Execution.Mapped(pipe, PlusOne())),
-        (5, Arbitrary.arbitrary[Int].map(i => Execution.Mapped(pipe, PlusI(i))))
-      )
+        (5, Arbitrary.arbitrary[Int].map(i => Execution.Mapped(pipe, PlusI(i)))))
     }
   }
 
@@ -111,21 +110,18 @@ class ExecutionOptimizationRulesTest extends FunSuite with PropertyChecks {
     Gen.oneOf(
       zipped(flatMapped(pipe), flatMapped(pipe)),
       zipped(mappedWrites, flatMapped(pipe)),
-      zipped(flatMapped(pipe), mappedWrites)
-    )
+      zipped(flatMapped(pipe), mappedWrites))
 
   val zippedMapped =
     Gen.oneOf(
       zipped(mappedWrites, mappedOrFlatMapped),
-      zipped(mappedOrFlatMapped, mappedWrites)
-    )
+      zipped(mappedOrFlatMapped, mappedWrites))
 
   val genExec =
     Gen.oneOf(
       zippedWrites,
       zipped(mappedOrFlatMapped, write(TypedPipeGen.genWithIterableSources)),
-      zipped(write(TypedPipeGen.genWithIterableSources), mappedOrFlatMapped)
-    )
+      zipped(write(TypedPipeGen.genWithIterableSources), mappedOrFlatMapped))
 
   val iterableExec =
     Gen.oneOf(
@@ -133,16 +129,15 @@ class ExecutionOptimizationRulesTest extends FunSuite with PropertyChecks {
       zippedFlatMapped,
       zippedMapped,
       zipped(mappedOrFlatMapped, write(TypedPipeGen.genWithIterableSources)),
-      zipped(write(TypedPipeGen.genWithIterableSources), mappedOrFlatMapped)
-    ).map { exec =>
-      exec flatMap {
-        case (left, right) => left.toIterableExecution.zip(right.toIterableExecution)
-      } map {
-        case (left, right) => left ++ right
-      } map {
-        _.toList.sorted
+      zipped(write(TypedPipeGen.genWithIterableSources), mappedOrFlatMapped)).map { exec =>
+        exec flatMap {
+          case (left, right) => left.toIterableExecution.zip(right.toIterableExecution)
+        } map {
+          case (left, right) => left ++ right
+        } map {
+          _.toList.sorted
+        }
       }
-    }
 
   import ExecutionOptimizationRules._
 
@@ -151,8 +146,7 @@ class ExecutionOptimizationRulesTest extends FunSuite with PropertyChecks {
     ZipMap,
     ZipFlatMap,
     MapWrite,
-    FuseMaps
-  )
+    FuseMaps)
 
   def genRuleFrom(rs: List[Rule[Execution]]): Gen[Rule[Execution]] =
     for {
@@ -205,8 +199,7 @@ class ExecutionOptimizationRulesTest extends FunSuite with PropertyChecks {
 
     assert(
       origin.waitFor(config, Local(true)).get ==
-        opt.waitFor(config, Local(true)).get
-    )
+        opt.waitFor(config, Local(true)).get)
   }
 
   test("all optimization rules don't change results") {

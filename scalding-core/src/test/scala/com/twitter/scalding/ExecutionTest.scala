@@ -367,8 +367,9 @@ class ExecutionTest extends WordSpec with Matchers {
     "recover from failure" in {
       val tp = TypedPipe.from(Seq(1)).groupAll.sum.values.map { _ => throw new Exception("oh no") }
       val recoveredTp = TypedPipe.from(Seq(2)).groupAll.sum.values
-      val recoveredEx = tp.toIterableExecution.recoverWith { case t: Throwable =>
-        recoveredTp.toIterableExecution
+      val recoveredEx = tp.toIterableExecution.recoverWith {
+        case t: Throwable =>
+          recoveredTp.toIterableExecution
       }
 
       val res = recoveredEx.shouldSucceed()
@@ -391,8 +392,9 @@ class ExecutionTest extends WordSpec with Matchers {
 
       val onCompleteCountDownLatch = new CountDownLatch(1)
       val recoveredTp = TypedPipe.from(Seq(2))
-      val otherEx: Execution[Iterable[Int]] = blockingTp.toIterableExecution.recoverWith { case t: Throwable =>
-        recoveredTp.toIterableExecution
+      val otherEx: Execution[Iterable[Int]] = blockingTp.toIterableExecution.recoverWith {
+        case t: Throwable =>
+          recoveredTp.toIterableExecution
       }.onComplete { t =>
         if (t.isFailure) {
           // capture the exception
@@ -414,7 +416,6 @@ class ExecutionTest extends WordSpec with Matchers {
       // finish counting down on the map to release the thread
       mapCountDownLatch.countDown()
     }
-
 
     "Config transformer will isolate Configs" in {
       def doesNotHaveVariable(message: String) = Execution.getConfig.flatMap { cfg =>
@@ -728,9 +729,10 @@ class ExecutionTest extends WordSpec with Matchers {
           .writeExecution(source.NullSink)
 
         e1.zip(e1)
-          .getCounters.map { case (_, c) =>
-            println(c.toMap)
-            c(("test", "scalding"))
+          .getCounters.map {
+            case (_, c) =>
+              println(c.toMap)
+              c(("test", "scalding"))
           }
       }
 
@@ -740,9 +742,10 @@ class ExecutionTest extends WordSpec with Matchers {
           .writeExecution(source.NullSink)
 
         e2.flatMap(Execution.from(_)).zip(e2)
-          .getCounters.map { case (_, c) =>
-            println(c.toMap)
-            c(("test", "scalding"))
+          .getCounters.map {
+            case (_, c) =>
+              println(c.toMap)
+              c(("test", "scalding"))
           }
       }
 

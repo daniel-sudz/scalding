@@ -65,7 +65,7 @@ case class ExhaustiveJdbcCaseClass(
   myDateWithTime: Date, // Default goes to MySQL DateTime/Timestamp so its not lossy
   @date myDateWithoutTime: Date,
   optiLong: Option[Long] // Nullable long
-  )
+)
 
 private final case class VerticaCaseClass(
   verticaLong: Long,

@@ -647,7 +647,8 @@ class PlatformTest extends WordSpec with Matchers with HadoopSharedPlatformTest 
       HadoopPlatformJobTest(new TypedPipeWithDescriptionJob(_), cluster)
         .inspectCompletedFlow { flow =>
           val steps = flow.getFlowSteps.asScala
-          val descs = List("map stage - assign words to 1",
+          val descs = List(
+            "map stage - assign words to 1",
             "reduce stage - sum",
             "write",
             // should see the .group and the .write show up as line numbers

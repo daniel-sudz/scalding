@@ -138,8 +138,10 @@ class TypedPipeSortByJob(args: Args) extends Job(args) {
 class TypedPipeSortByTest extends FunSuite {
   test("groups should not be disturbed by sortBy") {
     JobTest(new TypedPipeSortByJob(_))
-      .source(TypedText.tsv[(Int, Float, String)]("input"),
-        List((0, 0.6f, "6"),
+      .source(
+        TypedText.tsv[(Int, Float, String)]("input"),
+        List(
+          (0, 0.6f, "6"),
           (0, 0.5f, "5"),
           (0, 0.1f, "1"),
           (1, 0.1f, "10"),
@@ -619,7 +621,8 @@ class TypedPipeCrossTest extends WordSpec with Matchers {
         .typedSink(TypedText.tsv[(String, String)]("crossed")) { outbuf =>
           val sortedL = outbuf.toList.sorted
           (idx + ": create a cross-product") in {
-            sortedL shouldBe List(("all", "body"),
+            sortedL shouldBe List(
+              ("all", "body"),
               ("all", "every"),
               ("you", "body"),
               ("you", "every"))

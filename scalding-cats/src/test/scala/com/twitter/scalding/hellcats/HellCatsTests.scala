@@ -66,7 +66,8 @@ object ExecutionGen {
   implicit def eqIO[A: Eq]: Eq[IO[A]] =
     new Eq[IO[A]] {
       def eqv(l: IO[A], r: IO[A]) =
-        (Try(l.unsafeRunTimed(Duration(10, SECONDS))),
+        (
+          Try(l.unsafeRunTimed(Duration(10, SECONDS))),
           Try(r.unsafeRunTimed(Duration(10, SECONDS)))) match {
             case (Success(a), Success(b)) => Eq[Option[A]].eqv(a, b)
             case (Failure(_), Failure(_)) => true

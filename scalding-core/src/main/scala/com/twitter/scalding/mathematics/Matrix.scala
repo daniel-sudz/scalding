@@ -636,7 +636,7 @@ class Matrix[RowT, ColT, ValT](val rowSym: Symbol, val colSym: Symbol, val valSy
       pipe
         .joinWithSmaller(
           (rowSym, colSym) ->
-          (getField(newRFields, 0).append(getField(newRFields, 1))),
+            (getField(newRFields, 0).append(getField(newRFields, 1))),
           newRPipe, new OuterJoin)
         .thenDo{ p: RichPipe => cleanUpIndexZipJoin(rowSym.append(getField(newRFields, 0)), p) }
         .thenDo{ p: RichPipe => cleanUpIndexZipJoin(colSym.append(getField(newRFields, 1)), p) }

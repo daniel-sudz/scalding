@@ -147,7 +147,8 @@ case object A extends TestSealedAbstractClass(None)
 case object B extends TestSealedAbstractClass(Some("b"))
 
 sealed trait SealedTraitTest
-case class TestCC(a: Int,
+case class TestCC(
+  a: Int,
   b: Long,
   c: Option[Int],
   d: Double,
@@ -290,7 +291,8 @@ class MacroOrderingProperties
   def arbMap[T: Arbitrary, U](fn: T => U): Arbitrary[U] = Arbitrary(gen[T].map(fn))
 
   def collectionArb[C[_], T: Arbitrary](
-    implicit cbf: collection.generic.CanBuildFrom[Nothing, T, C[T]]): Arbitrary[C[T]] =
+    implicit
+    cbf: collection.generic.CanBuildFrom[Nothing, T, C[T]]): Arbitrary[C[T]] =
     Arbitrary {
       gen[List[T]].map { l =>
         val builder = cbf()
@@ -357,9 +359,11 @@ class MacroOrderingProperties
     assert(oBufCompare(rta, a) === 0, s"A should be equal to itself after an RT -- ${rt(a)}")
     assert(oBufCompare(rtb, b) === 0, s"B should be equal to itself after an RT-- ${rt(b)}")
     assert(oBufCompare(a, b) + oBufCompare(b, a) === 0, "In memory comparasons make sense")
-    assert(rawCompare(a, b) + rawCompare(b, a) === 0,
+    assert(
+      rawCompare(a, b) + rawCompare(b, a) === 0,
       "When adding the raw compares in inverse order they should sum to 0")
-    assert(oBufCompare(rta, rtb) === oBufCompare(a, b),
+    assert(
+      oBufCompare(rta, rtb) === oBufCompare(a, b),
       "Comparing a and b with ordered bufferables compare after a serialization RT")
   }
 
@@ -370,11 +374,14 @@ class MacroOrderingProperties
     assert(oBufCompare(rtb, b) === 0, s"B should be equal to itself after an RT-- ${rt(b)}")
     assert(oBufCompare(a, b) === 0, "In memory comparasons make sense")
     assert(oBufCompare(b, a) === 0, "In memory comparasons make sense")
-    assert(rawCompare(a, b) === 0,
+    assert(
+      rawCompare(a, b) === 0,
       "When adding the raw compares in inverse order they should sum to 0")
-    assert(rawCompare(b, a) === 0,
+    assert(
+      rawCompare(b, a) === 0,
       "When adding the raw compares in inverse order they should sum to 0")
-    assert(oBufCompare(rta, rtb) === 0,
+    assert(
+      oBufCompare(rta, rtb) === 0,
       "Comparing a and b with ordered bufferables compare after a serialization RT")
   }
 
@@ -852,7 +859,8 @@ class MacroOrderingProperties
   }
 
   def fn[A](
-    implicit or: OrderedSerialization[A]): OrderedSerialization[TypedParameterCaseClass[A]] =
+    implicit
+    or: OrderedSerialization[A]): OrderedSerialization[TypedParameterCaseClass[A]] =
     BinaryOrdering.ordSer[TypedParameterCaseClass[A]]
 
   test("Test out MacroOpaqueContainer inside a case class as an abstract type") {

@@ -20,7 +20,7 @@ package com.twitter.scalding.parquet.scrooge;
 
 import cascading.flow.Flow;
 import cascading.flow.FlowProcess;
-import cascading.flow.hadoop.HadoopFlowConnector;
+import cascading.flow.hadoop3.Hadoop3MRFlowConnector;
 import cascading.operation.BaseOperation;
 import cascading.operation.Function;
 import cascading.operation.FunctionCall;
@@ -122,7 +122,7 @@ public class ParquetScroogeSchemeTest {
 
     Pipe assembly = new Pipe("namecp");
     assembly = new Each(assembly, new ObjectToStringFunction());
-    Flow flow = new HadoopFlowConnector().connect("namecp", source, sink, assembly);
+    Flow flow = new Hadoop3MRFlowConnector().connect("namecp", source, sink, assembly);
 
     flow.complete();
     String result = FileUtils.readFileToString(new File(TXT_OUTPUT_PATH + "/part-00000"));
@@ -184,7 +184,7 @@ public class ParquetScroogeSchemeTest {
 
     Pipe assembly = new Pipe( "namecp" );
     assembly = new Each(assembly, new PackThriftFunction());
-    Flow flow  = new HadoopFlowConnector().connect("namecp", source, sink, assembly);
+    Flow flow  = new Hadoop3MRFlowConnector().connect("namecp", source, sink, assembly);
 
     flow.complete();
   }
@@ -202,7 +202,7 @@ public class ParquetScroogeSchemeTest {
 
     Pipe assembly = new Pipe( "namecp" );
     assembly = new Each(assembly, new UnpackThriftFunction());
-    Flow flow  = new HadoopFlowConnector().connect("namecp", source, sink, assembly);
+    Flow flow  = new Hadoop3MRFlowConnector().connect("namecp", source, sink, assembly);
 
     flow.complete();
     String result = FileUtils.readFileToString(new File(txtOutputPath+"/part-00000"));
