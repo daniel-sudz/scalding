@@ -91,6 +91,7 @@ jobs:
         run: |
           cd experimental-cascading
           ./build-cascading.sh
+          ls -R /home/runner/.m2/
 
       - name: "Run Test Variant"
         env:
