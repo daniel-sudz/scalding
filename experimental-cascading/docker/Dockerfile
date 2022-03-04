@@ -14,5 +14,5 @@ RUN "/scalding/experimental-cascading/docker/compile-cascading.sh"
 COPY "./cleanup-image.sh" "/scalding/experimental-cascading/docker/cleanup-image.sh"
 RUN "/scalding/experimental-cascading/docker/cleanup-image.sh"
 
-COPY "./compile-scalding.sh" "/scalding/experimental-cascading/docker/compile-scalding.sh"
-ENTRYPOINT ["/bin/bash", "/scalding/experimental-cascading/docker/compile-scalding.sh"]
+COPY "./link-cascading.sh" "/scalding/experimental-cascading/docker/link-cascading.sh"
+ENTRYPOINT ["/bin/bash", "/scalding/experimental-cascading/docker/link-cascading.sh"]
