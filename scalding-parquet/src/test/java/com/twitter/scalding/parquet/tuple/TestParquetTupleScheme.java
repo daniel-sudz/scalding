@@ -4,7 +4,7 @@ import com.twitter.scalding.parquet.thrift_java.test.Name;
 
 import cascading.flow.Flow;
 import cascading.flow.FlowProcess;
-import cascading.flow.hadoop.HadoopFlowConnector;
+import cascading.flow.hadoop3.Hadoop3MRFlowConnector;
 import cascading.operation.BaseOperation;
 import cascading.operation.Function;
 import cascading.operation.FunctionCall;
@@ -69,7 +69,7 @@ public class TestParquetTupleScheme {
 
     Pipe assembly = new Pipe("namecp");
     assembly = new Each(assembly, new ProjectedTupleFunction());
-    Flow flow = new HadoopFlowConnector().connect("namecp", source, sink, assembly);
+    Flow flow = new Hadoop3MRFlowConnector().connect("namecp", source, sink, assembly);
 
     flow.complete();
     String result = FileUtils.readFileToString(new File(txtOutputPath + "/part-00000"));
@@ -91,7 +91,7 @@ public class TestParquetTupleScheme {
 
     Pipe assembly = new Pipe("namecp");
     assembly = new Each(assembly, new UnpackTupleFunction());
-    Flow flow = new HadoopFlowConnector().connect("namecp", source, sink, assembly);
+    Flow flow = new Hadoop3MRFlowConnector().connect("namecp", source, sink, assembly);
 
     flow.complete();
     String result = FileUtils.readFileToString(new File(txtOutputPath + "/part-00000"));
