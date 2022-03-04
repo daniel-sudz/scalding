@@ -85,6 +85,14 @@ jobs:
           gem install sass -v 3.7.4
           gem install jekyll -v 3.2.1
 
+      # this is temporary until cascading releases an official 4.5 artifact
+      # wip-4.5 is the first tag with a hadoop3 target
+      - name: "Compile experimental cascading WIP"
+        run: |
+          cd experimental-cascading
+          ./build-cascading.sh
+          ls -R /home/runner/.m2/
+
       - name: "Run Test Variant"
         env:
           TRAVIS_SCALA_VERSION: ${{ matrix.scala-version }}
