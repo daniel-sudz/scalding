@@ -1,7 +1,7 @@
 package com.twitter.scalding.commons.scheme
 
 import cascading.scheme.Scheme
-import com.twitter.elephantbird.cascading2.scheme.{CombinedSequenceFile, CombinedWritableSequenceFile}
+import com.twitter.elephantbird.cascading3.scheme.{CombinedSequenceFile}
 import com.twitter.scalding.{HadoopSchemeInstance, SequenceFileScheme, WritableSequenceFileScheme}
 
 trait CombinedSequenceFileScheme extends SequenceFileScheme {
@@ -13,8 +13,8 @@ trait CombinedSequenceFileScheme extends SequenceFileScheme {
 
 trait CombinedWritableSequenceFileScheme extends WritableSequenceFileScheme {
   // TODO Cascading doesn't support local mode yet
-  override def hdfsScheme =
-    HadoopSchemeInstance(
-      new CombinedWritableSequenceFile(fields, keyType, valueType).asInstanceOf[Scheme[_, _, _, _, _]]
-    )
+  override def hdfsScheme = null // TODO fix elephant bird with casacding4
+    //HadoopSchemeInstance(
+    //  new CombinedWritableSequenceFile(fields, keyType, valueType).asInstanceOf[Scheme[_, _, _, _, _]]
+    //)
 }
