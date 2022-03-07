@@ -47,15 +47,14 @@ object Mode {
   val CascadingFlowConnectorClassKey = "cascading.flow.connector.class"
   val CascadingFlowProcessClassKey = "cascading.flow.process.class"
 
-  val DefaultHadoopFlowConnector = "cascading.flow.hadoop.HadoopFlowConnector"
-  val DefaultHadoopFlowProcess = "cascading.flow.hadoop.HadoopFlowProcess"
+  val DefaultHadoop3Mr1FlowConnector = "cascading.flow.hadoop3.Hadoop3MRFlowConnector"
+  val DefaultHadoop3Mr1FlowProcess = "cascading.flow.hadoop.HadoopFlowProcess"
 
-  val DefaultHadoop2Mr1FlowConnector = "cascading.flow.hadoop2.Hadoop2MR1FlowConnector"
-  val DefaultHadoop2Mr1FlowProcess =
-    "cascading.flow.hadoop.HadoopFlowProcess" // no Hadoop2MR1FlowProcess as of Cascading 3.0.0-wip-75?
+  val DefaultHadoop3TezFlowConnector = "cascading.flow.tez.Hadoop3TezFlowConnector"
+  val DefaultHadoop3TezFlowProcess = "cascading.flow.tez.Hadoop3TezFlowProcess"
 
-  val DefaultHadoop2TezFlowConnector = "cascading.flow.tez.Hadoop2TezFlowConnector"
-  val DefaultHadoop2TezFlowProcess = "cascading.flow.tez.Hadoop2TezFlowProcess"
+  val DefaultHadoopFlowConnector = DefaultHadoop3Mr1FlowConnector
+  val DefaultHadoopFlowProcess = DefaultHadoop3Mr1FlowProcess
 
   // This should be passed ALL the args supplied after the job name
   def apply(args: Args, config: Configuration): Mode = {
@@ -71,21 +70,21 @@ object Mode {
       args.boolean("hdfs")
     ) /* FIXME: should we start printing deprecation warnings ? It's okay to set manually c.f.*.class though */
       Hdfs(strictSources, config)
-    else if (args.boolean("hadoop1")) {
+    else if (args.boolean("hadoop3")) {
       config.set(CascadingFlowConnectorClassKey, DefaultHadoopFlowConnector)
       config.set(CascadingFlowProcessClassKey, DefaultHadoopFlowProcess)
       Hdfs(strictSources, config)
-    } else if (args.boolean("hadoop2-mr1")) {
-      config.set(CascadingFlowConnectorClassKey, DefaultHadoop2Mr1FlowConnector)
-      config.set(CascadingFlowProcessClassKey, DefaultHadoop2Mr1FlowProcess)
+    } else if (args.boolean("hadoop3-mr1")) {
+      config.set(CascadingFlowConnectorClassKey, DefaultHadoop3Mr1FlowConnector)
+      config.set(CascadingFlowProcessClassKey, DefaultHadoop3Mr1FlowProcess)
       Hdfs(strictSources, config)
-    } else if (args.boolean("hadoop2-tez")) {
-      config.set(CascadingFlowConnectorClassKey, DefaultHadoop2TezFlowConnector)
-      config.set(CascadingFlowProcessClassKey, DefaultHadoop2TezFlowProcess)
+    } else if (args.boolean("hadoop3-tez")) {
+      config.set(CascadingFlowConnectorClassKey, DefaultHadoop3TezFlowConnector)
+      config.set(CascadingFlowProcessClassKey, DefaultHadoop3TezFlowProcess)
       Hdfs(strictSources, config)
     } else
       throw ArgsException(
-        "[ERROR] Mode must be one of --local, --hadoop1, --hadoop2-mr1, --hadoop2-tez or --hdfs, you provided none"
+        "[ERROR] Mode must be one of --local, --hadoop3, --hadoop3-mr1, --hadoop3-tez or --hdfs, you provided none"
       )
   }
 
