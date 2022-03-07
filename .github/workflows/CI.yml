@@ -24,7 +24,7 @@ jobs:
           - scala-version: "2.12.14"
             BUILD: "debug -- classpath issues locally"
             TEST_TARGET: ""
-            script: './sbt testOnly / com.twitter.scalding.reducer_estimation.ReducerEstimatorTest'
+            script: './sbt testOnly com.twitter.scalding.reducer_estimation.ReducerEstimatorTest'
 
           - scala-version: "2.12.14"
             BUILD: "base"
