@@ -171,7 +171,7 @@ class PartialPartitionSourceTest extends WordSpec with Matchers {
 
       val directory = new File(testMode.getWritePathFor(PartialPartitionedTsv))
 
-      directory.listFiles().map(_.getName()).toSet shouldBe Set("A", "B")
+      directory.listFiles().filter((fname) => !fname.getName().contains("SUCCESS")).map(_.getName()).toSet shouldBe Set("A", "B")
 
       val aSource = ScalaSource.fromFile(new File(directory, "A/x/part-00000-00000"))
       val bSource = ScalaSource.fromFile(new File(directory, "B/y/part-00000-00001"))
