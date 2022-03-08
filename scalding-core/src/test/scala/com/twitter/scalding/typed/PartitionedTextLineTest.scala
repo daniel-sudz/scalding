@@ -93,7 +93,7 @@ class PartitionedTextLineTest extends WordSpec with Matchers {
       val directory = new File(testMode.getWritePathFor(multiplePartition))
       println(directory)
 
-      directory.listFiles.flatMap(d => d.listFiles.map(d.getName + "/" + _.getName)).toSet shouldBe Set(
+      directory.listFiles.filter((fname) => !fname.getName().contains("SUCCESS")).flatMap(d => d.listFiles.map(d.getName + "/" + _.getName)).toSet shouldBe Set(
         "A/X",
         "A/Y",
         "B/Z"
