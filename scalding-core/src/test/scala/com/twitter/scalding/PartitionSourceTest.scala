@@ -102,7 +102,7 @@ class DelimitedPartitionSourceTest extends WordSpec with Matchers {
 
       val directory = new File(testMode.getWritePathFor(DelimitedPartitionedTsv))
 
-      directory.listFiles().map(_.getName()).toSet shouldBe Set("A", "B")
+      directory.listFiles().filter((fname) => !fname.getName().contains("SUCCESS")).map(_.getName()).toSet shouldBe Set("A", "B")
 
       val aSource = ScalaSource.fromFile(new File(directory, "A/part-00000-00000"))
       val bSource = ScalaSource.fromFile(new File(directory, "B/part-00000-00001"))
