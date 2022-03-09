@@ -53,7 +53,7 @@ public class LocalTap<SourceCtx, SinkCtx> extends Tap<Properties, RecordReader, 
     }
 
     public LocalTap(String path, Scheme<Configuration, RecordReader, OutputCollector, SourceCtx, SinkCtx> scheme) {
-        super(new LocalScheme<SourceCtx, SinkCtx>(scheme));
+        super(new LocalScheme<SourceCtx, SinkCtx>(scheme), SinkMode.REPLACE);
         setup(path, scheme);
     }
 
