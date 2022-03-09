@@ -19,13 +19,14 @@ import cascading.tap.Tap
 import java.util.Properties
 import cascading.tuple._
 import cascading.scheme.Scheme
+import cascading.tap.SinkMode
 import cascading.flow.FlowProcess
 
 import scala.collection.mutable.Buffer
 import scala.collection.JavaConverters._
 
 class MemoryTap[In, Out](val scheme: Scheme[Properties, In, Out, _, _], val tupleBuffer: Buffer[Tuple])
-    extends Tap[Properties, In, Out](scheme) {
+    extends Tap[Properties, In, Out](scheme, SinkMode.REPLACE) {
 
   private var modifiedTime: Long = 1L
   def updateModifiedTime(): Unit =

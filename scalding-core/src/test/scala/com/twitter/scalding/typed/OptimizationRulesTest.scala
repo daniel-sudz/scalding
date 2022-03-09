@@ -727,7 +727,7 @@ class OptimizationRulesTest extends FunSuite with PropertyChecks {
     // and this fails fast, but still planning a giant graph
     // is quadratic to apply the optimizations, so it takes
     // a long time, but does not stack overflow.
-    val pipes = (0 to 1000).map(i => TypedPipe.from(List(i)))
+    val pipes = (0 to 100).map(i => TypedPipe.from(List(i)))
     val pipe = Monoid.sum(pipes)
 
     optimizedSteps(OptimizationRules.standardMapReduceRules, 1)(pipe)
