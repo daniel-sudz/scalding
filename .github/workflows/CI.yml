@@ -21,68 +21,68 @@ jobs:
       # all combinations that we will run in parallel to increase throughput
       matrix:
         include:
-          - scala-version: "2.11.12"
-            BUILD: "base"
-            TEST_TARGET: "scalding-args scalding-date maple scalding-quotation"
-            script: './scripts/run_test.sh'
-          - scala-version: "2.12.14"
-            BUILD: "base"
-            TEST_TARGET: "scalding-args scalding-date maple scalding-quotation"
-            script: './scripts/run_test.sh'
+      #    - scala-version: "2.11.12"
+      #      BUILD: "base"
+      #      TEST_TARGET: "scalding-args scalding-date maple scalding-quotation"
+      #      script: './scripts/run_test.sh'
+      #    - scala-version: "2.12.14"
+      #      BUILD: "base"
+      #      TEST_TARGET: "scalding-args scalding-date maple scalding-quotation"
+      #      script: './scripts/run_test.sh'
 
-          - scala-version: "2.11.12"
-            BUILD: "base"
-            TEST_TARGET: "scalding-avro scalding-hraven scalding-commons scalding-parquet scalding-parquet-scrooge"
-            script: './scripts/run_test.sh'
-          - scala-version: "2.12.14"
-            BUILD: "base"
-            TEST_TAGET: "scalding-avro scalding-hraven scalding-commons scalding-parquet scalding-parquet-scrooge"
-            script: './scripts/run_test.sh'
+       #   - scala-version: "2.11.12"
+       #     BUILD: "base"
+       #     TEST_TARGET: "scalding-avro scalding-hraven scalding-commons scalding-parquet scalding-parquet-scrooge"
+       #     script: './scripts/run_test.sh'
+       #   - scala-version: "2.12.14"
+       #     BUILD: "base"
+       #     TEST_TAGET: "scalding-avro scalding-hraven scalding-commons scalding-parquet scalding-parquet-scrooge"
+       #     script: './scripts/run_test.sh'
 
-          - scala-version: "2.11.12"
-            BUILD: "base"
-            TEST_TARGET: "scalding-core scalding-json scalding-db scalding-cats"
-            script: './scripts/run_test.sh'
-          - scala-version: "2.12.14"
-            BUILD: "base"
-            TEST_TARGET: "scalding-core scalding-json scalding-db scalding-cats"
-            script: './scripts/run_test.sh'
+        #  - scala-version: "2.11.12"
+        #    BUILD: "base"
+        #    TEST_TARGET: "scalding-core scalding-json scalding-db scalding-cats"
+        #    script: './scripts/run_test.sh'
+        #  - scala-version: "2.12.14"
+        #    BUILD: "base"
+        #    TEST_TARGET: "scalding-core scalding-json scalding-db scalding-cats"
+        #    script: './scripts/run_test.sh'
 
-          - scala-version: "2.11.12"
-            BUILD: "base"
-            TEST_TARGET: "scalding-hadoop-test"
-            script: './scripts/run_test.sh'
-          - scala-version: "2.12.14"
-            BUILD: "base"
-            TEST_TARGET: "scalding-hadoop-test"
-            script: './scripts/run_test.sh'
+         # - scala-version: "2.11.12"
+         #   BUILD: "base"
+         #   TEST_TARGET: "scalding-hadoop-test"
+         #   script: './scripts/run_test.sh'
+         # - scala-version: "2.12.14"
+         #   BUILD: "base"
+         #   TEST_TARGET: "scalding-hadoop-test"
+         #   script: './scripts/run_test.sh'
 
-          - scala-version: "2.11.12"
-            BUILD: "base"
-            TEST_TARGET: "scalding-estimators-test"
-            script: './scripts/run_test.sh'
-          - scala-version: "2.12.14"
-            BUILD: "base"
-            TEST_TARGET: "scalding-estimators-test"
-            script: './scripts/run_test.sh'
+        #  - scala-version: "2.11.12"
+        #    BUILD: "base"
+        #    TEST_TARGET: "scalding-estimators-test"
+        #    script: './scripts/run_test.sh'
+        #  - scala-version: "2.12.14"
+        #    BUILD: "base"
+        #    TEST_TARGET: "scalding-estimators-test"
+        #    script: './scripts/run_test.sh'
 
-          - scala-version: "2.11.12"
-            BUILD: "base"
-            TEST_TARGET: "scalding-serialization scalding-spark scalding-beam"
-            script: './scripts/run_test.sh'
-          - scala-version: "2.12.14"
-            BUILD: "base"
-            TEST_TARGET: "scalding-serialization scalding-spark scalding-beam"
-            script: './scripts/run_test.sh'
+       #   - scala-version: "2.11.12"
+       #     BUILD: "base"
+       #     TEST_TARGET: "scalding-serialization scalding-spark scalding-beam"
+       #     script: './scripts/run_test.sh'
+       #   - scala-version: "2.12.14"
+       #     BUILD: "base"
+       #     TEST_TARGET: "scalding-serialization scalding-spark scalding-beam"
+       #     script: './scripts/run_test.sh'
 
-          - scala-version: "2.11.12"
-            BUILD: "base"
-            TEST_TARGET: "scalding-thrift-macros"
-            script: './scripts/run_test.sh'
-          - scala-version: "2.12.14"
-            BUILD: "base"
-            TEST_TARGET: "scalding-thrift-macros"
-            script: './scripts/run_test.sh'
+        #  - scala-version: "2.11.12"
+        #    BUILD: "base"
+        #    TEST_TARGET: "scalding-thrift-macros"
+        #    script: './scripts/run_test.sh'
+        #  - scala-version: "2.12.14"
+        #    BUILD: "base"
+        #    TEST_TARGET: "scalding-thrift-macros"
+        #    script: './scripts/run_test.sh'
 
           - scala-version: "2.11.12"
             BUILD: "test tutorials and matrix tutorials and repl"

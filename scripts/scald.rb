@@ -58,8 +58,12 @@ CONFIG_RC = begin
 CONFIG = CONFIG_DEFAULT.merge!(CONFIG_RC)
 
 BUILDFILE = open(CONFIG["repo_root"] + "/build.sbt").read
-SCALDING_VERSION=`#{CONFIG["repo_root"] + "/sbt"} -Dsbt.supershell=false "print scalding-core / version" -error`.strip
-raise SCALDING_VERSION
+SCALDING_VERSION=`#{CONFIG["repo_root"] + "/sbt"} -Dsbt.supershell=false "print scalding-core / version" -error`
+puts "#{CONFIG["repo_root"] + "/sbt"}"
+puts SCALDING_VERSION
+SCALDING_VERSION = SCALDING_VERSION.strip
+puts SCALDING_VERSION
+raise "exit debug"
 
 #optionally set variables (not linux often doesn't have this set, and falls back to TMP. Set up a
 #YAML file in .scaldrc with "tmpdir: my_tmp_directory_name" or export TMPDIR="/my/tmp" to set on
