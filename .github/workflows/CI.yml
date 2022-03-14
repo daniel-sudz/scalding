@@ -8,7 +8,7 @@ on:
   # limit push to only final integration branches like develop
   push:
     branches:
-      - 'develop'
+      - '**'
 
 jobs:
   run-base-tests:
