@@ -58,7 +58,7 @@ CONFIG_RC = begin
 CONFIG = CONFIG_DEFAULT.merge!(CONFIG_RC)
 
 BUILDFILE = open(CONFIG["repo_root"] + "/build.sbt").read
-SCALDING_VERSION=`cd #{CONFIG["repo_root"]}; ./sbt -Dsbt.supershell=false "print scalding-core / version" -error`.strip
+SCALDING_VERSION=`cd #{CONFIG["repo_root"]}; ./sbt -Dsbt.log.noformat=true -Dsbt.supershell=false "print scalding-core / version" -error`.strip
 puts "sbt has been resolved to #{CONFIG["repo_root"] + "/sbt"}"
 puts "The current SCALDING_VERSION has been resolved to #{SCALDING_VERSION}"
 

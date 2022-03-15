@@ -102,9 +102,8 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
-      - run: |
-          # load release tags from git history for sbt-dynver
-          git fetch --prune --unshallow --tags
+        with:
+          fetch-depth: 0 # fetch all tags for sbt-dynver to properly resolve scalding version
 
       - uses: actions/setup-java@v2
         with:
@@ -121,11 +120,6 @@ jobs:
         run: |
           gem install sass -v 3.7.4
           gem install jekyll -v 3.2.1
-
-
-      - uses: actions/checkout@v2
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
 
       - name: "Run Test Variant"
         env:
