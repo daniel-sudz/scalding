@@ -122,6 +122,11 @@ jobs:
           gem install sass -v 3.7.4
           gem install jekyll -v 3.2.1
 
+
+      - uses: actions/checkout@v2
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+
       - name: "Run Test Variant"
         env:
           TRAVIS_SCALA_VERSION: ${{ matrix.scala-version }}
